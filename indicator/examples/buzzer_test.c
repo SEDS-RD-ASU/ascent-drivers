@@ -2,107 +2,36 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-// Define the beat and a short gap between notes (in ms)
-#define QUARTER_NOTE_MS 135
-#define GAP_MS 1
-
-// Helper function to play a note for a given duration factor (duration = factor * quarter note).
-void play_tone(note_t n, octave_t o, float factor) {
-    // Calculate the note duration in milliseconds
-    uint32_t duration = (uint32_t)(QUARTER_NOTE_MS * factor);
-    // Play the note (this function is assumed to drive the buzzer for "duration" ms)
-    note(n, o, duration);
-    // Short pause between notes
-    vTaskDelay(pdMS_TO_TICKS(GAP_MS));
-}
-
-// Helper function for a rest (silence) lasting "factor" beats.
-void rest_tone(float factor) {
-    uint32_t duration = (uint32_t)(QUARTER_NOTE_MS * factor);
-    vTaskDelay(pdMS_TO_TICKS(duration + GAP_MS));
-}
-
 void BuzzerTest(void) {
     buzzer_init();
     
-    // *** Repeat Section: Bars 1-2 [repeat twice] *** 
-    // Bar 1: "D D"
-    for (int i = 0; i < 2; i++) {  // Repeat the two-bar phrase
-        // Bar 1
-        play_tone(NOTE_D, OCTAVE_4, 1.0);  // "D"
-        play_tone(NOTE_D, OCTAVE_4, 1.0);  // "D"
+    note(NOTE_C, OCTAVE_4, 75);
+    vTaskDelay(pdMS_TO_TICKS(25));
+    note(NOTE_E, OCTAVE_4, 75);
+    vTaskDelay(pdMS_TO_TICKS(25));
+    note(NOTE_G, OCTAVE_4, 75);
+    vTaskDelay(pdMS_TO_TICKS(25));
+    note(NOTE_C, OCTAVE_5, 75);
+    vTaskDelay(pdMS_TO_TICKS(500));
+    note(NOTE_G, OCTAVE_5, 750);
 
-        // Bar 2: "d z A z"
-        play_tone(NOTE_D, OCTAVE_5, 1.0);  // "d" (one octave up)
-        rest_tone(1.0);                    // "z" (rest for one beat)
-        play_tone(NOTE_A, OCTAVE_4, 1.0);    // "A"
-        rest_tone(1.0);                    // "z"
-    }
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
-    // *** Bar 3: "^G z =G z F3/2 D F G   C C" ***
-    play_tone(NOTE_GS, OCTAVE_4, 1.0); // "^G" (G sharp)
-    rest_tone(1.0);                       // "z"
-    play_tone(NOTE_G, OCTAVE_4, 1.0);        // "=G" (G natural)
-    rest_tone(1.0);                       // "z"
-    play_tone(NOTE_F, OCTAVE_4, 1.5);        // "F3/2" (1.5 beats)
-    play_tone(NOTE_D, OCTAVE_4, 1.0);        // "D"
-    play_tone(NOTE_F, OCTAVE_4, 1.0);        // "F"
-    play_tone(NOTE_G, OCTAVE_4, 1.0);        // "G"
-    play_tone(NOTE_C, OCTAVE_4, 1.0);        // "C"
-    play_tone(NOTE_C, OCTAVE_4, 1.0);        // "C"
-
-    // *** Bar 4: "d z A z" ***
-    play_tone(NOTE_D, OCTAVE_5, 1.0);        // "d"
-    rest_tone(1.0);                        // "z"
-    play_tone(NOTE_A, OCTAVE_4, 1.0);        // "A"
-    rest_tone(1.0);                        // "z"
-
-    // *** Bar 5: "^G z =G z F3/2 D F G   B, B," ***
-    play_tone(NOTE_GS, OCTAVE_4, 1.0); // "^G"
-    rest_tone(1.0);                       // "z"
-    play_tone(NOTE_G, OCTAVE_4, 1.0);        // "=G"
-    rest_tone(1.0);                       // "z"
-    play_tone(NOTE_F, OCTAVE_4, 1.5);        // "F3/2"
-    play_tone(NOTE_D, OCTAVE_4, 1.0);        // "D"
-    play_tone(NOTE_F, OCTAVE_4, 1.0);        // "F"
-    play_tone(NOTE_G, OCTAVE_4, 1.0);        // "G"
-    play_tone(NOTE_B, OCTAVE_3, 1.0);        // "B," (B one octave lower)
-    play_tone(NOTE_B, OCTAVE_3, 1.0);        // "B,"
-
-    // *** Bar 6: "d z A z" ***
-    play_tone(NOTE_D, OCTAVE_5, 1.0);        // "d"
-    rest_tone(1.0);                        // "z"
-    play_tone(NOTE_A, OCTAVE_4, 1.0);        // "A"
-    rest_tone(1.0);                        // "z"
-
-    // *** Bar 7: "^G z =G z F3/2 D F G   ^A, ^A," ***
-    play_tone(NOTE_GS, OCTAVE_4, 1.0); // "^G"
-    rest_tone(1.0);                       // "z"
-    play_tone(NOTE_G, OCTAVE_4, 1.0);        // "=G"
-    rest_tone(1.0);                       // "z"
-    play_tone(NOTE_F, OCTAVE_4, 1.5);        // "F3/2"
-    play_tone(NOTE_D, OCTAVE_4, 1.0);        // "D"
-    play_tone(NOTE_F, OCTAVE_4, 1.0);        // "F"
-    play_tone(NOTE_G, OCTAVE_4, 1.0);        // "G"
-    play_tone(NOTE_AS, OCTAVE_3, 1.0);  // "^A," (A sharp, one octave lower)
-    play_tone(NOTE_AS, OCTAVE_3, 1.0);  // "^A,"
-
-    // *** Bar 8: "d z A z" ***
-    play_tone(NOTE_D, OCTAVE_5, 1.0);        // "d"
-    rest_tone(1.0);                        // "z"
-    play_tone(NOTE_A, OCTAVE_4, 1.0);        // "A"
-    rest_tone(1.0);                        // "z"
-
-    // *** Bar 9: "^G z =G z F3/2 D F G" ***
-    play_tone(NOTE_GS, OCTAVE_4, 1.0); // "^G"
-    rest_tone(1.0);                       // "z"
-    play_tone(NOTE_G, OCTAVE_4, 1.0);        // "=G"
-    rest_tone(1.0);                       // "z"
-    play_tone(NOTE_F, OCTAVE_4, 1.5);        // "F3/2"
-    play_tone(NOTE_D, OCTAVE_4, 1.0);        // "D"
-    play_tone(NOTE_F, OCTAVE_4, 1.0);        // "F"
-    play_tone(NOTE_G, OCTAVE_4, 1.0);        // "G"
+    note(NOTE_C, OCTAVE_4, 100);
+    note_transition(NOTE_E, OCTAVE_4, 50);
+    note(NOTE_E, OCTAVE_4, 100);
+    note_transition(NOTE_G, OCTAVE_4, 50);
+    note(NOTE_G, OCTAVE_4, 100);
+    note_transition(NOTE_C, OCTAVE_5, 50);
+    note(NOTE_G, OCTAVE_5, 750);
     
-    // (Optionally add an ending rest)
-    rest_tone(1.0);
+    vTaskDelay(pdMS_TO_TICKS(1000));
+
+    note_t notes[] = {NOTE_C, NOTE_E, NOTE_G, NOTE_C};
+    octave_t octaves[] = {OCTAVE_2, OCTAVE_2, OCTAVE_2, OCTAVE_3};
+    note_t notes1[] = {NOTE_D, NOTE_F, NOTE_A, NOTE_C, NOTE_E};
+    octave_t octaves1[] = {OCTAVE_1, OCTAVE_1, OCTAVE_1, OCTAVE_2, OCTAVE_2};
+
+    note_harmonics_waveform(notes, octaves, 4, 1000); // C4+E4+G4 for 1s
+    note_harmonics_waveform(notes1, octaves1, 5, 1000); // C4+E4+G4 for 1s
 }
