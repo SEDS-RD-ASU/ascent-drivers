@@ -21,11 +21,11 @@
 #define BNO055_I2C_ADDR             0x28            // BNO055 I2C address
 
 // BMP390L Barometer
-#define PIN_BMP390_INT              GPIO_NUM_38     // BMP390L interrupt pin
+#define PIN_BMP390_INT              GPIO_NUM_45     // BMP390L interrupt pin
 #define BMP390_I2C_ADDR             0x76            // BMP390L I2C address
 
 // H3LIS331DL Accelerometer
-#define PIN_H3LIS_INT1              GPIO_NUM_33     // H3LIS331DL interrupt 1 pin
+#define PIN_H3LIS_INT1              GPIO_NUM_38     // H3LIS331DL interrupt 1 pin
 #define H3LIS331DL_I2C_ADDR         0x18            // H3LIS331DL I2C address
 
 // SAM-M10Q GPS
@@ -42,10 +42,10 @@
 #define VBATT                     GPIO_NUM_17     // VBATT Enable
 
 //Pyrotechnic channel Pins
-#define PYRO1_OUT                   GPIO_NUM_34     // Pyro channel 1 (APOGEE)
-#define PYRO2_OUT                   GPIO_NUM_35     // Pyro channel 2 (MAINS)
-#define PYRO3_OUT                   GPIO_NUM_36     // Pyro channel 3
-#define PYRO4_OUT                   GPIO_NUM_37     // Pyro channel 4
+#define PYRO1_OUT                   GPIO_NUM_39     // Pyro channel 1 (APOGEE)
+#define PYRO2_OUT                   GPIO_NUM_40     // Pyro channel 2 (MAINS)
+#define PYRO3_OUT                   GPIO_NUM_41     // Pyro channel 3
+#define PYRO4_OUT                   GPIO_NUM_42     // Pyro channel 4
 #define PYRO1_CONT                  GPIO_NUM_1      // Pyro Continuity channel 1 (APOGEE)
 #define PYRO2_CONT                  GPIO_NUM_2      // Pyro Continuity channel 2 (MAINS)
 #define PYRO3_CONT                  GPIO_NUM_3      // Pyro Continuity channel 3
@@ -63,6 +63,7 @@
 
 #define DIODE_DROP 0.35f
 #define DIVIDER_RATIO 3.778f
+#define MAGIC 1.29375
 #define PYRO_RESISTANCE_COEFFICIENT 360000.0f
 
 #endif /* ASCENT_R2_PINS_H */ 
