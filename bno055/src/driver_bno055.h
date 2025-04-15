@@ -294,6 +294,7 @@ typedef enum {
 } bno055_gyro_powermode_t;
 
 typedef struct {
+    int16_t Matrix0;
     int16_t Matrix1;
     int16_t Matrix2;
     int16_t Matrix3;
@@ -302,7 +303,6 @@ typedef struct {
     int16_t Matrix6;
     int16_t Matrix7;
     int16_t Matrix8;
-    int16_t Matrix9;
 } bno055_sic_matrix_t;
 
 /**

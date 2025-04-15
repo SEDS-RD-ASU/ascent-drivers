@@ -719,15 +719,15 @@ void bno_get_sic_matrix(bno055_sic_matrix_t *matrix) {
     if (matrix) {
         uint8_t *data = bnoreadMultiple(0x43, 18);
         if (data != NULL) {
-            matrix->Matrix1 = (int16_t)((data[1] << 8) | data[0]);
-            matrix->Matrix2 = (int16_t)((data[3] << 8) | data[2]);
-            matrix->Matrix3 = (int16_t)((data[5] << 8) | data[4]);
-            matrix->Matrix4 = (int16_t)((data[7] << 8) | data[6]);
-            matrix->Matrix5 = (int16_t)((data[9] << 8) | data[8]);
-            matrix->Matrix6 = (int16_t)((data[11] << 8) | data[10]);
-            matrix->Matrix7 = (int16_t)((data[13] << 8) | data[12]);
-            matrix->Matrix8 = (int16_t)((data[15] << 8) | data[14]);
-            matrix->Matrix9 = (int16_t)((data[17] << 8) | data[16]);
+            matrix->Matrix0 = (int16_t)((data[1] << 8) | data[0]);
+            matrix->Matrix1 = (int16_t)((data[3] << 8) | data[2]);
+            matrix->Matrix2 = (int16_t)((data[5] << 8) | data[4]);
+            matrix->Matrix3 = (int16_t)((data[7] << 8) | data[6]);
+            matrix->Matrix4 = (int16_t)((data[9] << 8) | data[8]);
+            matrix->Matrix5 = (int16_t)((data[11] << 8) | data[10]);
+            matrix->Matrix6 = (int16_t)((data[13] << 8) | data[12]);
+            matrix->Matrix7 = (int16_t)((data[15] << 8) | data[14]);
+            matrix->Matrix8 = (int16_t)((data[17] << 8) | data[16]);
             free(data);
         }
     }
@@ -736,24 +736,24 @@ void bno_get_sic_matrix(bno055_sic_matrix_t *matrix) {
 void bno_set_sic_matrix(bno055_sic_matrix_t matrix) {
     bno_setpage(0);
     uint8_t data[18];
-    data[0] = (matrix.Matrix1 >> 8);
-    data[1] = (matrix.Matrix1 & 0xFF);
-    data[2] = (matrix.Matrix2 >> 8);
-    data[3] = (matrix.Matrix2 & 0xFF);
-    data[4] = (matrix.Matrix3 >> 8);
-    data[5] = (matrix.Matrix3 & 0xFF);
-    data[6] = (matrix.Matrix4 >> 8);
-    data[7] = (matrix.Matrix4 & 0xFF);
-    data[8] = (matrix.Matrix5 >> 8);
-    data[9] = (matrix.Matrix5 & 0xFF);
-    data[10] = (matrix.Matrix6 >> 8);
-    data[11] = (matrix.Matrix6 & 0xFF);
-    data[12] = (matrix.Matrix7 >> 8);
-    data[13] = (matrix.Matrix7 & 0xFF);
-    data[14] = (matrix.Matrix8 >> 8);
-    data[15] = (matrix.Matrix8 & 0xFF);
-    data[16] = (matrix.Matrix9 >> 8);
-    data[17] = (matrix.Matrix9 & 0xFF);
+    data[1] = (matrix.Matrix0 >> 8);
+    data[0] = (matrix.Matrix0 & 0xFF);
+    data[3] = (matrix.Matrix1 >> 8);
+    data[2] = (matrix.Matrix1 & 0xFF);
+    data[5] = (matrix.Matrix2 >> 8);
+    data[4] = (matrix.Matrix2 & 0xFF);
+    data[7] = (matrix.Matrix3 >> 8);
+    data[6] = (matrix.Matrix3 & 0xFF);
+    data[9] = (matrix.Matrix4 >> 8);
+    data[8] = (matrix.Matrix4 & 0xFF);
+    data[11] = (matrix.Matrix5 >> 8);
+    data[10] = (matrix.Matrix5 & 0xFF);
+    data[13] = (matrix.Matrix6 >> 8);
+    data[12] = (matrix.Matrix6 & 0xFF);
+    data[15] = (matrix.Matrix7 >> 8);
+    data[14] = (matrix.Matrix7 & 0xFF);
+    data[18] = (matrix.Matrix8 >> 8);
+    data[17] = (matrix.Matrix8 & 0xFF);
 
     for (int i = 0; i < 18; i++) {
         bnowriteRegister(0x43 + i, data[i]);
