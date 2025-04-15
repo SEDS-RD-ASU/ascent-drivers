@@ -45,7 +45,7 @@ void lora_test_send()
 	lora_set_frequency(866e6); // 866MHz
 #elif CONFIG_915MHZ
 	ESP_LOGI(pcTaskGetName(NULL), "Frequency is 915MHz");
-	lora_set_frequency(915e6); // 915MHz
+	lora_set_frequency(137e6); // 915MHz
 #elif CONFIG_OTHER
 	ESP_LOGI(pcTaskGetName(NULL), "Frequency is %dMHz", CONFIG_OTHER_FREQUENCY);
 	long frequency = CONFIG_OTHER_FREQUENCY * 1000000;

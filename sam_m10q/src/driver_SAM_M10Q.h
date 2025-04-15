@@ -21,12 +21,6 @@ esp_err_t sam_m10q_init(int sda, int scl, int port, uint32_t freq);
  */
 esp_err_t sam_m10q_set_10hz(void);
 
-/**
- * @brief Read NMEA data from GPS
- * This function will parse and print RMC, GGA, and VTG messages
- * 
- * @return esp_err_t ESP_OK on success
- */
-esp_err_t sam_m10q_read_nmea(void);
+uint8_t* readNmeaStream(void);
 
 #endif /* DRIVER_SAM_M10Q_H */ 
