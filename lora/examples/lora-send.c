@@ -13,21 +13,26 @@
 
 #include "lora.h"
 
+#include "driver_bno055.h"
 
 void task_tx(void *pvParameters)
 {
 	ESP_LOGI(pcTaskGetName(NULL), "Start");
 	uint8_t buf[256]; // Maximum Payload size of SX1276/77/78/79 is 255
-	for(int i = 0; i < 10; i++) {
+	while(1) {
+		int16_t acc_x, acc_y, acc_z, mag_x, mag_y, mag_z, gyr_x, gyr_y, gyr_z;
+		bno_setoprmode(CONFIG);
+		bno_setoprmode(AMG);
+		bno_readamg(&acc_x, &acc_y, &acc_z, &mag_x, &mag_y, &mag_z, &gyr_x, &gyr_y, &gyr_z);
 		TickType_t nowTick = xTaskGetTickCount();
-		int send_len = sprintf((char *)buf,"Hello World!! %"PRIu32, nowTick);
+		int send_len = sprintf((char *)buf,"Hello World!! %"PRIu32" Acc: %d %d %d Mag: %d %d %d Gyr: %d %d %d", nowTick, acc_x, acc_y, acc_z, mag_x, mag_y, mag_z, gyr_x, gyr_y, gyr_z);
 		lora_send_packet(buf, send_len);
 		ESP_LOGI(pcTaskGetName(NULL), "%d byte packet sent...", send_len);
 		int lost = lora_packet_lost();
 		if (lost != 0) {
 			ESP_LOGW(pcTaskGetName(NULL), "%d packets lost", lost);
 		}
-		vTaskDelay(pdMS_TO_TICKS(5000));
+		vTaskDelay(pdMS_TO_TICKS(10));
 	}
 }
 
@@ -45,7 +50,7 @@ void lora_test_send()
 	lora_set_frequency(866e6); // 866MHz
 #elif CONFIG_915MHZ
 	ESP_LOGI(pcTaskGetName(NULL), "Frequency is 915MHz");
-	lora_set_frequency(137e6); // 915MHz
+	lora_set_frequency(492e6); // 915MHz
 #elif CONFIG_OTHER
 	ESP_LOGI(pcTaskGetName(NULL), "Frequency is %dMHz", CONFIG_OTHER_FREQUENCY);
 	long frequency = CONFIG_OTHER_FREQUENCY * 1000000;
@@ -55,13 +60,8 @@ void lora_test_send()
 	lora_enable_crc();
 
 	int cr = 1;
-	int bw = 7;
+	int bw = 9;
 	int sf = 7;
-#if CONFIG_ADVANCED
-	cr = CONFIG_CODING_RATE;
-	bw = CONFIG_BANDWIDTH;
-	sf = CONFIG_SF_RATE;
-#endif
 
 	lora_set_coding_rate(cr);
 	//lora_set_coding_rate(CONFIG_CODING_RATE);
@@ -77,6 +77,8 @@ void lora_test_send()
 	//lora_set_spreading_factor(CONFIG_SF_RATE);
 	//int sf = lora_get_spreading_factor();
 	ESP_LOGI(pcTaskGetName(NULL), "spreading_factor=%d", sf);
+
+	lora_set_tx_power(17);
 
 	xTaskCreate(&task_tx, "TX", 1024*3, NULL, 5, NULL);
 }

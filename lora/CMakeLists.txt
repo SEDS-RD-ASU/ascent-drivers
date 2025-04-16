@@ -8,6 +8,6 @@ idf_component_register(
     INCLUDE_DIRS 
         "include"
         "examples"
-        "${CMAKE_CURRENT_SOURCE_DIR}/../"
+        "../bno055/src"
     REQUIRES driver
 )
