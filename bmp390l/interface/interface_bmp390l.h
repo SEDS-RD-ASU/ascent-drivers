@@ -7,5 +7,5 @@
 #include "driver_BMP390L.h"
 #include "i2c_manager.h"
 
-uint32_t barometricAGL(void);
-void set_ground_pressure(double pressure);
+uint32_t bmp390_barometricAGL(void);
+void bmp390_set_ground_pressure(double pressure);

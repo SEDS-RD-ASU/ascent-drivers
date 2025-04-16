@@ -5,7 +5,7 @@
 
 static double groundPressure = 1013.25; // Default ground pressure in hPa
 
-void set_ground_pressure(double pressure) {
+void bmp390_set_ground_pressure(double pressure) {
     groundPressure = pressure; // Set the ground pressure
 }
 
@@ -16,7 +16,7 @@ void set_ground_pressure(double pressure) {
 #define GRAVITY            9.80665  // m/s²
 #define METERS_TO_FEET     3.28084
 
-uint32_t barometricAGL(void) {
+uint32_t bmp390_barometricAGL(void) {
     double pressure, temperature;
 
     bmp390_read_sensor_data(&pressure, &temperature);
