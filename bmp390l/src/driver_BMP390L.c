@@ -16,7 +16,7 @@
 #include "driver/i2c.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "driver_bmp390l.h"
+#include "driver_BMP390L.h"
 #include "i2c_manager.h"
 
 static const char *TAG = "BMP390";
