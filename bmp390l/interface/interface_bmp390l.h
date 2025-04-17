@@ -19,6 +19,7 @@ typedef struct {
     double pressure;
     double altitude;
     double temperature;
+    double acceleration; // New field for acceleration
 } bmp390_vals_t;
 
 
@@ -39,3 +40,5 @@ void update_vals(void *pvParameters);
 
 // Function to retrieve current sensor values
 bmp390_vals_t bmp390_vals(); 
+
+void check_conditions_task(void *pvParameters);
