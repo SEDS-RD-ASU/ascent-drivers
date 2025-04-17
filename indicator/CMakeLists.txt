@@ -3,6 +3,7 @@ idf_component_register(
         "src/driver_buzzer.c"
         "src/interface_buzzer.c"
         "examples/buzzer_test.c"
+        "src/driver_led.c"
     INCLUDE_DIRS 
         "src"
         "examples"
