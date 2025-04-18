@@ -9,10 +9,29 @@
 #include "driver_BMP390L.h"
 #include "math.h"
 #include "driver_buzzer.h"
+#include "ascent_r2_hardware_definition.h"
+
+void bmp390_sensorinit() {
+    bmp390_init(I2C_MASTER_PORT);
+
+    bmp390_osr_settings_t osr_settings = {
+        .press_os = BMP390_OVERSAMPLING_32X,
+        .temp_os = BMP390_OVERSAMPLING_2X
+    };
+
+    bmp390_set_osr(&osr_settings);
+
+    bmp390_odr_t odr_settings = BMP390_ODR_12_5HZ;
+
+    bmp390_set_odr(odr_settings);
+
+    printf("BMP Configured!\n");
+}
 
 static double groundPressure = 1013.25; // Default ground pressure in hPa
 
 #define NUM_READINGS 20 // Define the number of readings to take
+
 
 void update_ground_pressure() {
     double totalPressure = 0.0; // Initialize total pressure
@@ -37,6 +56,7 @@ void update_ground_pressure() {
 
     // Calculate the average ground pressure
     groundPressure = totalPressure / NUM_READINGS;
+    printf("Ground pressure updated: %.2f hPa\n", groundPressure);
 }
 
 // Required constants (define based on ISA)
@@ -46,15 +66,21 @@ void update_ground_pressure() {
 #define GRAVITY 9.80665                // m/s^2
 #define METERS_TO_FEET 3.28084
 
-float bmp390_barometricAGL(double pressure_hPa, double groundPressure_hPa) {
-    if (pressure_hPa <= 0.0 || groundPressure_hPa <= 0.0) {
-        printf("Invalid pressure input: %.2f / %.2f\n", pressure_hPa, groundPressure_hPa);
+float bmp390_barometricAGL() {
+
+    double pressure_hPa;
+    double temperature;
+
+    bmp390_read_sensor_data(&pressure_hPa, &temperature);
+
+    if (pressure_hPa <= 0.0 || groundPressure <= 0.0) {
+        printf("Invalid pressure input: %.2f / %.2f\n", pressure_hPa, groundPressure);
         return 0;
     }
 
     // ISA-based altitude (in meters)
     double alt_measured = 44330.0 * (1.0 - pow(pressure_hPa / 1013.25, 1.0 / 5.255));
-    double alt_ground   = 44330.0 * (1.0 - pow(groundPressure_hPa / 1013.25, 1.0 / 5.255));
+    double alt_ground   = 44330.0 * (1.0 - pow(groundPressure / 1013.25, 1.0 / 5.255));
 
     double agl_meters = alt_measured - alt_ground;
     if (agl_meters < 0) agl_meters = 0;

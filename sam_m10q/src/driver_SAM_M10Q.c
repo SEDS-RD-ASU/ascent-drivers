@@ -42,26 +42,20 @@ esp_err_t sam_m10q_set_10hz(void) {
     return ESP_OK;
 }
 
-static int parse_comma_delimited_str(char *string, char **fields, int max_fields) {
-    int i = 0;
-    fields[i++] = string;
-    while ((i < max_fields) && NULL != (string = strchr(string, ','))) {
-        *string = '\0';
-        fields[i++] = ++string;
-    }
-    return --i;
-}
-
-uint8_t* readNmeaStream() {
+char* readNmeaStream() {
     size_t length = 500;
-    uint8_t *data = malloc(length);
+    char *data = (char *)malloc(length);
     if (!data) {
         printf("Failed to allocate memory for NMEA stream\n");
         return NULL;
     }
 
-    esp_err_t ret = i2c_manager_read_register(I2C_MASTER_PORT, UBLOX_I2C_ADDRESS, 0xFF, data, length - 1);
-    if (ret != ESP_OK) {
+    esp_err_t ret = i2c_manager_read_register(I2C_MASTER_PORT, UBLOX_I2C_ADDRESS, 0xFF, (uint8_t *)data, length - 1);
+    if (ret == ESP_ERR_TIMEOUT) {
+        printf("Timeout occurred while reading NMEA stream\n");
+        memset(data, 0, length);
+        return data;
+    } else if (ret != ESP_OK) {
         printf("Failed to read NMEA stream: %s\n", esp_err_to_name(ret));
         free(data);
         return NULL;
@@ -69,15 +63,5 @@ uint8_t* readNmeaStream() {
 
     data[length - 1] = '\0';  // Ensure null-termination
 
-    // Parse the NMEA string into fields
-    char *fields[20]; // Adjust the number of fields as needed
-    int field_count = parse_comma_delimited_str((char*)data, fields, 20);
-
-    // Optionally log the parsed fields
-    for (int i = 0; i < field_count; i++) {
-        printf("Field %d: %s\n", i, fields[i]);
-    }
-
-    printf("NMEA Data: %s\n", (char*)data);
     return data;
 }

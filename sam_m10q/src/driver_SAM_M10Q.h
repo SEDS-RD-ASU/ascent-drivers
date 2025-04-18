@@ -21,6 +21,6 @@ esp_err_t sam_m10q_init(int sda, int scl, int port, uint32_t freq);
  */
 esp_err_t sam_m10q_set_10hz(void);
 
-uint8_t* readNmeaStream(void);
+char* readNmeaStream(void);
 
 #endif /* DRIVER_SAM_M10Q_H */ 

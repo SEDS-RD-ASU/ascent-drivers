@@ -23,5 +23,6 @@ typedef struct {
 } bmp390_vals_t;
 
 
-float bmp390_barometricAGL(double pressure_hPa, double groundPressure_hPa);
-void update_ground_pressure();
+float bmp390_barometricAGL();
+void update_ground_pressure(void);
+void bmp390_sensorinit(void);
