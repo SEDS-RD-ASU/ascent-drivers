@@ -24,21 +24,4 @@ typedef struct {
 
 
 float bmp390_barometricAGL(double pressure_hPa, double groundPressure_hPa);
-void bmp390_set_ground_pressure(double pressure);
-
-// Function to set the ground pressure and calculate average pressure
 void update_ground_pressure();
-
-// Function to calculate vertical velocity based on altitude samples
-double calculate_velocity();
-
-// Function to add a new altitude sample to the buffer
-void add_sample(double altitude, int64_t timestamp_us);
-
-// Function to update sensor values and calculate altitude and velocity
-void update_vals(void *pvParameters);
-
-// Function to retrieve current sensor values
-bmp390_vals_t bmp390_vals(); 
-
-void check_conditions_task(void *pvParameters);
