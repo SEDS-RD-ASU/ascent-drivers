@@ -164,7 +164,7 @@ double pyro_resistance(pyro_channel_t channel) {
     return rematch;
 }
 
-esp_err_t pyro_activate(pyro_channel_t channel) {
+esp_err_t pyro_activate(pyro_channel_t channel, uint8_t delay) {
     if (channel < 1 || channel > 4) {
         return ESP_ERR_INVALID_ARG;
     }
@@ -179,7 +179,7 @@ esp_err_t pyro_activate(pyro_channel_t channel) {
     gpio_set_level(pyro_out_pins[channel - 1], 1);
     
     // You might want to add a delay here depending on your requirements
-    // vTaskDelay(pdMS_TO_TICKS(100)); // Example: 100ms pulse
+    vTaskDelay(pdMS_TO_TICKS(delay)); // Example: 100ms pulse
 
     // Reset the output
     gpio_set_level(pyro_out_pins[channel - 1], 0);

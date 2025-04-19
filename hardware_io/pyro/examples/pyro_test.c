@@ -49,29 +49,29 @@ static esp_err_t pyroValidate(void) {
 }
 
 static esp_err_t pyroActivationTest(void) {
-    printf("\n=== Pyro Activation Test ===\n");
-    printf("WARNING: This will attempt to fire pyro channels!\n");
-    printf("Ensure proper safety measures are in place.\n\n");
-    fflush(stdout);
+//     printf("\n=== Pyro Activation Test ===\n");
+//     printf("WARNING: This will attempt to fire pyro channels!\n");
+//     printf("Ensure proper safety measures are in place.\n\n");
+//     fflush(stdout);
     
     esp_err_t ret = ESP_OK;
     
-    for (pyro_channel_t channel = PYRO_CHANNEL_1; channel <= PYRO_CHANNEL_4; channel++) {
-        printf("Testing Channel %d activation... ", channel);
-        fflush(stdout);
+//     for (pyro_channel_t channel = PYRO_CHANNEL_1; channel <= PYRO_CHANNEL_4; channel++) {
+//         printf("Testing Channel %d activation... ", channel);
+//         fflush(stdout);
         
-        ret = pyro_activate(channel);
-        if (ret == ESP_OK) {
-            printf("SUCCESS\n");
-        } else if (ret == ESP_ERR_INVALID_STATE) {
-            printf("FAILED (No continuity)\n");
-        } else {
-            printf("FAILED (Error: %d)\n", ret);
-        }
+//         ret = pyro_activate(channel);
+//         if (ret == ESP_OK) {
+//             printf("SUCCESS\n");
+//         } else if (ret == ESP_ERR_INVALID_STATE) {
+//             printf("FAILED (No continuity)\n");
+//         } else {
+//             printf("FAILED (Error: %d)\n", ret);
+//         }
         
-        fflush(stdout);
-        vTaskDelay(pdMS_TO_TICKS(500)); // Half second delay between channels
-    }
+//         fflush(stdout);
+//         vTaskDelay(pdMS_TO_TICKS(500)); // Half second delay between channels
+//     }
     
     return ret;
 }
