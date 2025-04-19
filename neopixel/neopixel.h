@@ -17,7 +17,7 @@ typedef void *tNeopixelContext;
 #define NP_RGB2RED(rgb)   (((rgb) & 0xFF0000UL) >> 16)
 #define NP_RGB2GREEN(rgb) (((rgb) & 0x00FF00UL) >> 8)
 #define NP_RGB2BLUE(rgb)  ((rgb) & 0x0000FFUL)
-#define NP_RGB(r, g, b)   ( ((uint32_t)(r) & 0xFF) << 16  \
+#define NP_RGB(g, r, b)   ( ((uint32_t)(r) & 0xFF) << 16  \
                        | ((uint32_t)(g) & 0xFF) << 8   \
                        | ((uint32_t)(b) & 0xFF) )
 
