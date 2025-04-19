@@ -20,10 +20,10 @@ void parse_NMEA(float *gps_latitude, float *gps_longitude, uint32_t *gps_altitud
             while (token != NULL) {
                 switch (fieldIndex) {
                     case 3: // Latitude
-                        *gps_latitude = token[0] == '\0' ? 0 : atof(token);
+                        *gps_latitude = token[0] == '\0' ? 0 : atof(token) / 100;
                         break;
                     case 5: // Longitude
-                        *gps_longitude = token[0] == '\0' ? 0 : atof(token);
+                        *gps_longitude = token[0] == '\0' ? 0 : atof(token) / 100;
                         break;
                     case 9: // Altitude
                         *gps_altitude = token[0] == '\0' ? 0 : (uint32_t)atof(token);
