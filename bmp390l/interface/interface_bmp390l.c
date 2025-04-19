@@ -15,25 +15,34 @@ void bmp390_sensorinit() {
     bmp390_init(I2C_MASTER_PORT);
 
     bmp390_osr_settings_t osr_settings = {
-        .press_os = BMP390_OVERSAMPLING_32X,
+        .press_os = BMP390_OVERSAMPLING_2X,
         .temp_os = BMP390_OVERSAMPLING_2X
     };
 
     bmp390_set_osr(&osr_settings);
 
-    bmp390_odr_t odr_settings = BMP390_ODR_12_5HZ;
+    bmp390_odr_t odr_settings = BMP390_ODR_100HZ;
 
     bmp390_set_odr(odr_settings);
+
+    bmp390_config_t filterconfig = {
+        .iir_filter = BMP390_IIR_FILTER_COEFF_63
+    };
+
+    bmp390_set_config(&filterconfig);
 
     printf("BMP Configured!\n");
 }
 
 static double groundPressure = 1013.25; // Default ground pressure in hPa
 
-#define NUM_READINGS 20 // Define the number of readings to take
+#define NUM_READINGS 30 // Define the number of readings to take
 
 
 void update_ground_pressure() {
+
+    buzzer_init();
+
     double totalPressure = 0.0; // Initialize total pressure
 
     // Loop over the number of readings
@@ -51,12 +60,13 @@ void update_ground_pressure() {
 
         totalPressure += pressure; // Add the pressure to the total pressure
 
-        vTaskDelay(pdMS_TO_TICKS(150)); // Delay for 150 ms
+        vTaskDelay(pdMS_TO_TICKS(30)); // Delay for 150 ms
     }
 
     // Calculate the average ground pressure
     groundPressure = totalPressure / NUM_READINGS;
     printf("Ground pressure updated: %.2f hPa\n", groundPressure);
+    note(NOTE_E,6,100);
 }
 
 // Required constants (define based on ISA)
@@ -64,7 +74,6 @@ void update_ground_pressure() {
 #define TEMP_LAPSE_RATE 0.0065         // K/m
 #define GAS_CONSTANT 287.05            // J/(kg·K)
 #define GRAVITY 9.80665                // m/s^2
-#define METERS_TO_FEET 3.28084
 
 float bmp390_barometricAGL() {
 
@@ -85,5 +94,5 @@ float bmp390_barometricAGL() {
     double agl_meters = alt_measured - alt_ground;
     if (agl_meters < 0) agl_meters = 0;
 
-    return agl_meters * METERS_TO_FEET;  // return feet as a float
+    return agl_meters;  // return feet as a float
 }
