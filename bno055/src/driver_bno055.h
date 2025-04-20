@@ -355,6 +355,10 @@ void bno_readamg(int16_t *acc_x, int16_t *acc_y, int16_t *acc_z,
                  int16_t *mag_x, int16_t *mag_y, int16_t *mag_z,
                  int16_t *gyr_x, int16_t *gyr_y, int16_t *gyr_z);
 
+void bno_readacc(int16_t *acc_x, int16_t *acc_y, int16_t *acc_z);
+void bno_readmag(int16_t *mag_x, int16_t *mag_y, int16_t *mag_z);
+void bno_readgyro(int16_t *gyr_x, int16_t *gyr_y, int16_t *gyr_z);
+
 /**
  * @brief Get the current page of the BNO055
  * 

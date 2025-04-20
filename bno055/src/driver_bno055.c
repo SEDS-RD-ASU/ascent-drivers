@@ -130,6 +130,46 @@ void bno_readamg(int16_t *acc_x, int16_t *acc_y, int16_t *acc_z,
     }
 }
 
+void bno_readacc(int16_t *acc_x, int16_t *acc_y, int16_t *acc_z) {
+    bno_setpage(0);
+    uint8_t *data = bnoreadMultiple(0x08, 18); // Read 18 registers from 0x08 to 0x19
+    if (data != NULL) {
+        // Parse accelerometer data
+        if (acc_x) *acc_x = (int16_t)((data[1] << 8) | data[0]);
+        if (acc_y) *acc_y = (int16_t)((data[3] << 8) | data[2]);
+        if (acc_z) *acc_z = (int16_t)((data[5] << 8) | data[4]);
+
+        free(data); // Free the allocated memory
+    }
+}
+
+void bno_readmag(int16_t *mag_x, int16_t *mag_y, int16_t *mag_z) {
+    bno_setpage(0);
+    uint8_t *data = bnoreadMultiple(0x08, 18); // Read 18 registers from 0x08 to 0x19
+    if (data != NULL) {
+
+        // Parse magnetometer data
+        if (mag_x) *mag_x = (int16_t)((data[7] << 8) | data[6]);
+        if (mag_y) *mag_y = (int16_t)((data[9] << 8) | data[8]);
+        if (mag_z) *mag_z = (int16_t)((data[11] << 8) | data[10]);
+
+        free(data); // Free the allocated memory
+    }
+}
+void bno_readgyro(int16_t *gyr_x, int16_t *gyr_y, int16_t *gyr_z) {
+    bno_setpage(0);
+    uint8_t *data = bnoreadMultiple(0x08, 18); // Read 18 registers from 0x08 to 0x19
+    if (data != NULL) {
+
+        // Parse gyroscope data
+        if (gyr_x) *gyr_x = (int16_t)((data[13] << 8) | data[12]);
+        if (gyr_y) *gyr_y = (int16_t)((data[15] << 8) | data[14]);
+        if (gyr_z) *gyr_z = (int16_t)((data[17] << 8) | data[16]);
+
+        free(data); // Free the allocated memory
+    }
+}
+
 void bno_readeuler(int16_t *eul_heading,
                  int16_t *eul_roll,
                  int16_t *eul_pitch) {
