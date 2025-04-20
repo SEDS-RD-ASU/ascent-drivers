@@ -164,13 +164,13 @@ double pyro_resistance(pyro_channel_t channel) {
     return rematch;
 }
 
-esp_err_t pyro_activate(pyro_channel_t channel, uint8_t delay) {
+esp_err_t pyro_activate(pyro_channel_t channel, uint8_t delay, bool bypass) {
     if (channel < 1 || channel > 4) {
         return ESP_ERR_INVALID_ARG;
     }
 
     // Check continuity before activation
-    if (!pyro_continuity(channel)) {
+    if (!bypass & !pyro_continuity(channel)) {
         ESP_LOGE(TAG, "No continuity detected on channel %d", channel);
         return ESP_ERR_INVALID_STATE;
     }
@@ -181,8 +181,10 @@ esp_err_t pyro_activate(pyro_channel_t channel, uint8_t delay) {
     // You might want to add a delay here depending on your requirements
     vTaskDelay(pdMS_TO_TICKS(delay)); // Example: 100ms pulse
 
-    // Reset the output
-    gpio_set_level(pyro_out_pins[channel - 1], 0);
+    if (delay != 0) {
+        // Reset the output
+        gpio_set_level(pyro_out_pins[channel - 1], 0);
+    }
 
     return ESP_OK;
 }
