@@ -92,7 +92,7 @@ float bmp390_barometricAGL() {
     double alt_ground   = 44330.0 * (1.0 - pow(groundPressure / 1013.25, 1.0 / 5.255));
 
     double agl_meters = alt_measured - alt_ground;
-    if (agl_meters < 0) agl_meters = 0;
+    // if (agl_meters < 0) agl_meters = 0;
 
     return agl_meters;  // return feet as a float
 }

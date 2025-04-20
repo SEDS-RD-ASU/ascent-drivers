@@ -281,7 +281,7 @@ esp_err_t bmp390_read_sensor_data(double *pressure, double *temperature) {
     }
 
     // Wait for measurement to complete
-    vTaskDelay(pdMS_TO_TICKS(50));
+    // vTaskDelay(pdMS_TO_TICKS(50));
 
     // Read 6 bytes starting at BMP390_REG_PRESS_DATA
     ret = bmp390_read_register(BMP390_REG_PRESS_DATA, data, 6);
