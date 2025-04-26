@@ -36,7 +36,7 @@ void bmp390_sensorinit() {
 
 static double groundPressure = 1013.25; // Default ground pressure in hPa
 
-void update_ground_pressure(double *groundPressure, uint8_t num_readings) {
+void update_ground_pressure(double *groundPressure, double *groundTemperature, uint8_t num_readings) {
     groundPressure = 1013.25;
 
     double totalPressure = 0.0; // Initialize total pressure
@@ -55,12 +55,14 @@ void update_ground_pressure(double *groundPressure, uint8_t num_readings) {
         }
 
         totalPressure += pressure; // Add the pressure to the total pressure
+        totalTemperature += temperature;
 
         vTaskDelay(pdMS_TO_TICKS(30)); // Delay for 150 ms
     }
 
     // Calculate the average ground pressure
-    groundPressure = totalPressure / num_readings;
+    groundPressure = totalPressure / num_readings;  
+    groundTemperature = totalTemperature / num_readings;
 }
 
 void pressure_to_m(double *pressure, double *temperature, double *alt) {

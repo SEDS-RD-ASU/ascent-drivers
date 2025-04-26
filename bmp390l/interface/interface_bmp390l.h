@@ -24,5 +24,5 @@ typedef struct {
 
 
 void pressure_to_m(double *pressure, double *temperature, double *alt);
-void update_ground_pressure(double *groundPressure, uint8_t num_readings);
+void update_ground_pressure(double *groundPressure, double *groundTemperature, uint8_t num_readings);
 void bmp390_sensorinit(void);
