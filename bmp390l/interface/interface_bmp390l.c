@@ -11,6 +11,9 @@
 #include "driver_buzzer.h"
 #include "ascent_r2_hardware_definition.h"
 
+double groundPressure;
+double groundTemperature;
+
 void bmp390_sensorinit() {
     bmp390_init(I2C_MASTER_PORT);
 
@@ -30,6 +33,8 @@ void bmp390_sensorinit() {
     };
 
     bmp390_set_config(&filterconfig);
+
+    update_ground_pressure(&groundPressure, &groundPressure, 10);
 
     printf("BMP Configured!\n");
 }
