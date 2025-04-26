@@ -1,3 +1,6 @@
+#ifndef BMP390L_INTERFACE_H
+#define BMP390L_INTERFACE_H
+
 #include <stdio.h>
 #include <string.h>
 #include "esp_log.h"
@@ -26,3 +29,5 @@ typedef struct {
 float bmp390_barometricAGL();
 void update_ground_pressure(void);
 void bmp390_sensorinit(void);
+
+#endif
