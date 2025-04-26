@@ -63,7 +63,7 @@ void update_ground_pressure(double *groundPressure, uint8_t num_readings) {
     groundPressure = totalPressure / num_readings;
 }
 
-void pressure_to_m(double *pressure, double *temperature, float *alt) {
+void pressure_to_m(double *pressure, double *temperature, double *alt) {
     if (pressure <= 0.0) {
         printf("Invalid pressure input: %.2f\n", pressure);
         return 0;
