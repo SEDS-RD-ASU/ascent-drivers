@@ -36,17 +36,13 @@ void bmp390_sensorinit() {
 
 static double groundPressure = 1013.25; // Default ground pressure in hPa
 
-#define NUM_READINGS 30 // Define the number of readings to take
-
-
-void update_ground_pressure() {
-
-    buzzer_init();
+void update_ground_pressure(double *groundPressure, uint8_t num_readings) {
+    groundPressure = 1013.25;
 
     double totalPressure = 0.0; // Initialize total pressure
 
     // Loop over the number of readings
-    for (int i = 0; i < NUM_READINGS; i++) {
+    for (int i = 0; i < num_readings; i++) {
         double pressure, temperature; // Declare pressure and temperature variables
 
         // Read sensor data and store the return value
@@ -64,35 +60,14 @@ void update_ground_pressure() {
     }
 
     // Calculate the average ground pressure
-    groundPressure = totalPressure / NUM_READINGS;
-    printf("Ground pressure updated: %.2f hPa\n", groundPressure);
-    note(NOTE_E,6,100);
+    groundPressure = totalPressure / num_readings;
 }
 
-// Required constants (define based on ISA)
-#define SEA_LEVEL_PRESSURE 1013.25     // hPa
-#define TEMP_LAPSE_RATE 0.0065         // K/m
-#define GAS_CONSTANT 287.05            // J/(kg·K)
-#define GRAVITY 9.80665                // m/s^2
-
-float bmp390_barometricAGL() {
-
-    double pressure_hPa;
-    double temperature;
-
-    bmp390_read_sensor_data(&pressure_hPa, &temperature);
-
-    if (pressure_hPa <= 0.0 || groundPressure <= 0.0) {
-        printf("Invalid pressure input: %.2f / %.2f\n", pressure_hPa, groundPressure);
+void pressure_to_m(double *pressure, double *temperature, float *alt) {
+    if (pressure <= 0.0) {
+        printf("Invalid pressure input: %.2f\n", pressure);
         return 0;
     }
 
-    // ISA-based altitude (in meters)
-    double alt_measured = 44330.0 * (1.0 - pow(pressure_hPa / 1013.25, 1.0 / 5.255));
-    double alt_ground   = 44330.0 * (1.0 - pow(groundPressure / 1013.25, 1.0 / 5.255));
-
-    double agl_meters = alt_measured - alt_ground;
-    // if (agl_meters < 0) agl_meters = 0;
-
-    return agl_meters;  // return feet as a float
+    *alt = ((*temperature+273.15)/0.0065) * (1.0 - pow(*pressure / 1013.25, 1.0 / 5.255));
 }
