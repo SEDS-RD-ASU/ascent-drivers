@@ -372,6 +372,7 @@ int32_t sendReceiveUbxMessage_I2C(int32_t messageClass,
 
 clean_up:
     if (pTxBuf != NULL) {
+        free(pTxBuf);
         pTxBuf = NULL;
     }
     return result;
