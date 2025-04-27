@@ -10,36 +10,19 @@
 #include "math.h"
 #include "driver_buzzer.h"
 #include "ascent_r2_hardware_definition.h"
+#include "interface_bmp390l.h"
 
-void bmp390_sensorinit() {
-    bmp390_init(I2C_MASTER_PORT);
-
-    bmp390_osr_settings_t osr_settings = {
-        .press_os = BMP390_OVERSAMPLING_2X,
-        .temp_os = BMP390_OVERSAMPLING_2X
-    };
-
-    bmp390_set_osr(&osr_settings);
-
-    bmp390_odr_t odr_settings = BMP390_ODR_100HZ;
-
-    bmp390_set_odr(odr_settings);
-
-    bmp390_config_t filterconfig = {
-        .iir_filter = BMP390_IIR_FILTER_COEFF_63
-    };
-
-    bmp390_set_config(&filterconfig);
-
-    printf("BMP Configured!\n");
-}
-
-static double groundPressure = 1013.25; // Default ground pressure in hPa
+// Static calibration parameters
+static float bmp_scaling = 1.0f;  // Default to no scaling
+static float bmp_bias = 0.0f;     // Default to no bias
+static double groundAlt = 0.0;    // Ground altitude for local reference
 
 void update_ground_pressure(double *groundPressure, double *groundTemperature, uint8_t num_readings) {
-    groundPressure = 1013.25;
+    *groundPressure = 1013.25; // Default ground pressure in hPa
+    *groundTemperature = 25.0; // Default ground temperature in Celsius
 
-    double totalPressure = 0.0; // Initialize total pressure
+    double totalPressure = 0.0;    // Initialize total pressure
+    double totalTemperature = 0.0; // Initialize total temperature
 
     // Loop over the number of readings
     for (int i = 0; i < num_readings; i++) {
@@ -54,22 +37,55 @@ void update_ground_pressure(double *groundPressure, double *groundTemperature, u
             return;
         }
 
-        totalPressure += pressure; // Add the pressure to the total pressure
-        totalTemperature += temperature;
+        totalPressure += pressure;       // Add the pressure to the total pressure
+        totalTemperature += temperature; // Add the temperature to the total temperature
 
-        vTaskDelay(pdMS_TO_TICKS(30)); // Delay for 150 ms
+        vTaskDelay(pdMS_TO_TICKS(30)); // Delay for 30 ms
     }
 
-    // Calculate the average ground pressure
-    groundPressure = totalPressure / num_readings;  
-    groundTemperature = totalTemperature / num_readings;
+    // Calculate the average ground pressure and temperature
+    *groundPressure = totalPressure / num_readings;  
+    *groundTemperature = totalTemperature / num_readings;
 }
 
 void pressure_to_m(double *pressure, double *temperature, double *alt) {
-    if (pressure <= 0.0) {
-        printf("Invalid pressure input: %.2f\n", pressure);
-        return 0;
+    if (*pressure <= 0.0) {
+        printf("Invalid pressure input: %.2f\n", *pressure);
+        *alt = 0.0;
+        return;
     }
 
     *alt = ((*temperature+273.15)/0.0065) * (1.0 - pow(*pressure / 1013.25, 1.0 / 5.255));
+}
+
+void bmp390_set_calibration(float scaling, float bias) {
+    bmp_scaling = scaling;
+    bmp_bias = bias;
+}
+
+void bmp390_set_ground_alt(double ground_alt) {
+    groundAlt = ground_alt;
+}
+
+void bmp390_get_raw(baro_double_t* baro_out) {
+    bmp390_read_sensor_data(&baro_out->pressure, &baro_out->temperature);
+}
+
+void bmp390_get_calibrated(baro_double_t* baro_out) {
+    // Get raw data
+    bmp390_get_raw(baro_out);
+    
+    // Apply scaling and bias correction
+    baro_out->pressure = baro_out->pressure * bmp_scaling + bmp_bias;
+    
+    // Calculate altitude
+    pressure_to_m(&baro_out->pressure, &baro_out->temperature, &baro_out->alt);
+}
+
+void bmp390_get_local(baro_double_t* baro_out) {
+    // Get calibrated data
+    bmp390_get_calibrated(baro_out);
+    
+    // Convert to altitude above ground level
+    baro_out->alt = baro_out->alt - groundAlt;
 }
