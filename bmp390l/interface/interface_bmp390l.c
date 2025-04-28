@@ -66,33 +66,47 @@ void update_ground_pressure() {
     // Calculate the average ground pressure
     groundPressure = totalPressure / NUM_READINGS;
     printf("Ground pressure updated: %.2f hPa\n", groundPressure);
-    note(NOTE_E,6,100);
+    note(NOTE_E,3,1000);
 }
 
+// --- NUMBERS FROM https://www.nakka-rocketry.net/apogee.html --- ///
+
 // Required constants (define based on ISA)
-#define SEA_LEVEL_PRESSURE 1013.25     // hPa
-#define TEMP_LAPSE_RATE 0.0065         // K/m
-#define GAS_CONSTANT 287.05            // J/(kg·K)
-#define GRAVITY 9.80665                // m/s^2
+#define P0 1013.25   //  hPa, standard sea-level pressure
+#define T0 288.15    //  K, standard temperature
+#define L -0.0065    //  K/m, lapse rate
+#define g 9.8067     //  m/s², gravity
+#define R 287.05     //  gas constant for air (J/Kg-K)
+
+float ptoalt(double pressure_hPa) {
+    float alt = 999.999;
+
+    float exponent = (R * L) / g;
+
+    float coeff = (T0 / L);
+
+    alt = coeff * (pow((P0/pressure_hPa),exponent) - 1);
+
+    return alt;
+}
 
 float bmp390_barometricAGL() {
-
     double pressure_hPa;
     double temperature;
 
     bmp390_read_sensor_data(&pressure_hPa, &temperature);
+
+    printf("Pressure: %f\n", groundPressure);
 
     if (pressure_hPa <= 0.0 || groundPressure <= 0.0) {
         printf("Invalid pressure input: %.2f / %.2f\n", pressure_hPa, groundPressure);
         return 0;
     }
 
-    // ISA-based altitude (in meters)
-    double alt_measured = 44330.0 * (1.0 - pow(pressure_hPa / 1013.25, 1.0 / 5.255));
-    double alt_ground   = 44330.0 * (1.0 - pow(groundPressure / 1013.25, 1.0 / 5.255));
+    double alt_measured = ptoalt(pressure_hPa);
+    double alt_ground   = ptoalt(groundPressure);
 
     double agl_meters = alt_measured - alt_ground;
-    // if (agl_meters < 0) agl_meters = 0;
 
-    return agl_meters;  // return feet as a float
+    return agl_meters;
 }
