@@ -2,6 +2,8 @@
 #include "driver_bno055.h"
 #include "freertos/semphr.h"
 #include "ascent_r2_hardware_definition.h"  // Make sure this is included
+#include "esp_timer.h"
+#include "esp_log.h"  // Add this if it's missing
 
 // Static calibration matrices and bias vectors
 static float acc_correction_matrix[3][3] = {
@@ -32,6 +34,9 @@ static const float SQRT2_2 = 0.70710678118f; // sqrt(2)/2 = cos(45°) = sin(45°
 
 // Add the mutex definition
 SemaphoreHandle_t bno055_mutex = NULL;
+
+// Define a TAG for logging
+static const char* BNO_TAG = "BNO055";
 
 // Initialize mutex in a new initialization function
 void bno055_interface_init(void) {
@@ -158,6 +163,10 @@ esp_err_t bno055_get_calibrated(imu_raw_3d_t* acc_out, imu_raw_3d_t* gyr_out, im
 }
 
 esp_err_t bno055_get_local(imu_raw_3d_t* acc_out, imu_raw_3d_t* gyr_out, imu_raw_3d_t* mag_out, bool local_up_flipped) {
+#ifdef FUNCTION_DURATION
+    int64_t start_time = esp_timer_get_time(); // Get start time in microseconds
+#endif
+
     // First get calibrated readings
     esp_err_t ret = bno055_get_calibrated(acc_out, gyr_out, mag_out);
     if (ret != ESP_OK) {
@@ -203,6 +212,12 @@ esp_err_t bno055_get_local(imu_raw_3d_t* acc_out, imu_raw_3d_t* gyr_out, imu_raw
     mag_out->x = (int16_t)mag_rot[0];
     mag_out->y = (int16_t)mag_rot[1];
     mag_out->z = (int16_t)mag_rot[2];
+
+#ifdef FUNCTION_DURATION
+    int64_t end_time = esp_timer_get_time();
+    float duration_ms = (end_time - start_time) / 1000.0;
+    ESP_LOGI(BNO_TAG, "get_local execution time: %.3f ms", duration_ms);
+#endif
 
     return ESP_OK;
 }

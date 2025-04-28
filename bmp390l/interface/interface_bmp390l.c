@@ -13,6 +13,9 @@
 #include "interface_bmp390l.h"
 #include "freertos/semphr.h"
 
+// Define a TAG for logging
+static const char* BMP_TAG = "BMP390";
+
 // Static calibration parameters
 static float bmp_scaling = 1.0f;  // Default to no scaling
 static float bmp_bias = 0.0f;     // Default to no bias
@@ -111,9 +114,19 @@ void bmp390_get_calibrated(baro_double_t* baro_out) {
 }
 
 void bmp390_get_local(baro_double_t* baro_out) {
+#ifdef FUNCTION_DURATION
+    int64_t start_time = esp_timer_get_time(); // Get start time in microseconds
+#endif
+
     // Get calibrated data
     bmp390_get_calibrated(baro_out);
     
     // Convert to altitude above ground level
     baro_out->alt = baro_out->alt - groundAlt;
+
+#ifdef FUNCTION_DURATION
+    int64_t end_time = esp_timer_get_time();
+    float duration_ms = (end_time - start_time) / 1000.0;
+    ESP_LOGI(BMP_TAG, "get_local execution time: %.3f ms", duration_ms);
+#endif
 }

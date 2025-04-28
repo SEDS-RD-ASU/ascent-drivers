@@ -3,6 +3,11 @@
 #include <stdbool.h>
 #include "freertos/semphr.h"
 #include "ascent_r2_hardware_definition.h"  // Make sure this is included
+#include "esp_timer.h"
+#include "esp_log.h"
+
+// Define a TAG for logging
+static const char* LIS_TAG = "H3LIS331DL";
 
 // Static calibration matrix and bias vector
 static float high_g_correction_matrix[3][3] = {
@@ -79,7 +84,7 @@ void h3lis331dl_get_raw(imu_float_3d_t* acc) {
             xSemaphoreGive(h3lis331dl_mutex);
         } else {
             // Handle mutex timeout - set to default values or report error
-            ESP_LOGE("H3LIS331DL", "Failed to get mutex for reading sensor data");
+            ESP_LOGE(LIS_TAG, "Failed to get mutex for reading sensor data");
             acc->x = 0;
             acc->y = 0;
             acc->z = 0;
@@ -111,6 +116,10 @@ void h3lis331dl_get_calibrated(imu_float_3d_t* acc_out) {
 }
 
 void h3lis331dl_get_local(imu_float_3d_t* acc_out, bool local_up_flipped) {
+#ifdef FUNCTION_DURATION
+    int64_t start_time = esp_timer_get_time(); // Get start time in microseconds
+#endif
+
     // First get calibrated readings
     h3lis331dl_get_calibrated(acc_out);
 
@@ -132,4 +141,10 @@ void h3lis331dl_get_local(imu_float_3d_t* acc_out, bool local_up_flipped) {
     acc_out->x = (double)acc_rot[0];
     acc_out->y = (double)acc_rot[1];
     acc_out->z = (double)acc_rot[2];
+
+#ifdef FUNCTION_DURATION
+    int64_t end_time = esp_timer_get_time();
+    float duration_ms = (end_time - start_time) / 1000.0;
+    ESP_LOGI(LIS_TAG, "get_local execution time: %.3f ms", duration_ms);
+#endif
 }
