@@ -1,6 +1,8 @@
 #include "interface_h3lis331dl.h"
 #include "driver_H3LIS331DL.h"
 #include <stdbool.h>
+#include "freertos/semphr.h"
+#include "ascent_r2_hardware_definition.h"  // Make sure this is included
 
 // Static calibration matrix and bias vector
 static float high_g_correction_matrix[3][3] = {
@@ -13,6 +15,16 @@ static float high_g_bias_vector[3] = {0.0f, 0.0f, 0.0f};
 
 // Constant for rotation calculations
 static const float SQRT2_2 = 0.70710678118f; // sqrt(2)/2 = cos(45°) = sin(45°)
+
+// Add the mutex definition
+SemaphoreHandle_t h3lis331dl_mutex = NULL;
+
+// Initialize mutex in a new initialization function
+void h3lis331dl_interface_init(void) {
+    if (h3lis331dl_mutex == NULL) {
+        h3lis331dl_mutex = xSemaphoreCreateMutex();
+    }
+}
 
 // Helper function to apply 3x3 matrix multiplication and bias addition
 static void apply_calibration(float* input, float matrix[3][3], float* bias, float* output) {
@@ -59,9 +71,19 @@ void h3lis331dl_set_calibration(float correction_matrix[3][3], float bias_vector
     }
 }
 
+// Update the raw data read function to use the mutex with the defined timeout constant
 void h3lis331dl_get_raw(imu_float_3d_t* acc) {
     if (acc) {
-        h3lis331dl_read_accel(&acc->x, &acc->y, &acc->z);
+        if (xSemaphoreTake(h3lis331dl_mutex, pdMS_TO_TICKS(MUTEX_TIMEOUT)) == pdTRUE) {
+            h3lis331dl_read_accel(&acc->x, &acc->y, &acc->z);
+            xSemaphoreGive(h3lis331dl_mutex);
+        } else {
+            // Handle mutex timeout - set to default values or report error
+            ESP_LOGE("H3LIS331DL", "Failed to get mutex for reading sensor data");
+            acc->x = 0;
+            acc->y = 0;
+            acc->z = 0;
+        }
     }
 }
 

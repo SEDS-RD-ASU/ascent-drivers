@@ -1,8 +1,14 @@
+#include "freertos/semphr.h"
+#include "esp_err.h"
+
 typedef struct {
     int16_t x;
     int16_t y;
     int16_t z;
 } imu_raw_3d_t;
+
+// Add the mutex declaration before the function declarations
+extern SemaphoreHandle_t bno055_mutex;
 
 /**
  * @brief Set calibration matrices and bias vectors for BNO055 data
@@ -49,3 +55,6 @@ esp_err_t bno055_get_calibrated(imu_raw_3d_t* acc_out, imu_raw_3d_t* gyr_out, im
  * @return esp_err_t ESP_OK if successful, ESP_FAIL otherwise
  */
 esp_err_t bno055_get_local(imu_raw_3d_t* acc_out, imu_raw_3d_t* gyr_out, imu_raw_3d_t* mag_out, bool local_up_flipped);
+
+// Add initialization function
+void bno055_interface_init(void);

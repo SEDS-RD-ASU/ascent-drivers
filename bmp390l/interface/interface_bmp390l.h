@@ -14,6 +14,7 @@
 #include "i2c_manager.h"
 #include "driver_BMP390L.h"
 #include <stdbool.h>
+#include "freertos/semphr.h"
 
 typedef struct {
     double velocity;
@@ -28,6 +29,17 @@ typedef struct {
     double temperature;
     double alt;
 } baro_double_t;
+
+extern SemaphoreHandle_t bmp390_mutex;
+
+/**
+ * @brief Initialize the BMP390 interface
+ * 
+ * This function initializes the mutex for protecting I2C bus access
+ * during BMP390 sensor readings. It should be called once during system
+ * initialization, before any sensor operations.
+ */
+void bmp390_interface_init(void);
 
 /**
  * @brief Update ground pressure and temperature by averaging multiple readings

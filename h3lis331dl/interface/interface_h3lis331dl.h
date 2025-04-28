@@ -1,8 +1,17 @@
+#include "freertos/semphr.h"
+#include <stdbool.h>
+
 typedef struct {
     double x;
     double y;
     double z;
 } imu_float_3d_t;
+
+// Add the mutex declaration before the function declarations
+extern SemaphoreHandle_t h3lis331dl_mutex;
+
+// Add initialization function
+void h3lis331dl_interface_init(void);
 
 /**
  * @brief Set calibration matrix and bias vector for H3LIS331DL high-G accelerometer

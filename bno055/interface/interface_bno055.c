@@ -1,5 +1,7 @@
 #include "interface_bno055.h"
 #include "driver_bno055.h"
+#include "freertos/semphr.h"
+#include "ascent_r2_hardware_definition.h"  // Make sure this is included
 
 // Static calibration matrices and bias vectors
 static float acc_correction_matrix[3][3] = {
@@ -27,6 +29,16 @@ static float mag_bias_vector[3] = {0.0f, 0.0f, 0.0f};
 
 // Constant for rotation calculations
 static const float SQRT2_2 = 0.70710678118f; // sqrt(2)/2 = cos(45°) = sin(45°)
+
+// Add the mutex definition
+SemaphoreHandle_t bno055_mutex = NULL;
+
+// Initialize mutex in a new initialization function
+void bno055_interface_init(void) {
+    if (bno055_mutex == NULL) {
+        bno055_mutex = xSemaphoreCreateMutex();
+    }
+}
 
 // Helper function to apply 3x3 matrix multiplication and bias addition
 static void apply_calibration(float* input, float matrix[3][3], float* bias, float* output) {
@@ -80,14 +92,21 @@ void bno055_set_calibration(
     }
 }
 
+// Update the raw data read function to use the mutex with the defined timeout constant
 esp_err_t bno055_get_raw(imu_raw_3d_t* acc, imu_raw_3d_t* gyr, imu_raw_3d_t* mag) {
-    bno_readamg(
-        &acc->x, &acc->y, &acc->z,
-        &gyr->x, &gyr->y, &gyr->z,
-        &mag->x, &mag->y, &mag->z
-    );
-
-    return ESP_OK;
+    if (xSemaphoreTake(bno055_mutex, pdMS_TO_TICKS(MUTEX_TIMEOUT)) == pdTRUE) {
+        bno_readamg(
+            &acc->x, &acc->y, &acc->z,
+            &gyr->x, &gyr->y, &gyr->z,
+            &mag->x, &mag->y, &mag->z
+        );
+        xSemaphoreGive(bno055_mutex);
+        return ESP_OK;
+    } else {
+        // Handle mutex timeout - set to default values or report error
+        ESP_LOGE("BNO055", "Failed to get mutex for reading sensor data");
+        return ESP_FAIL;
+    }
 }
 
 esp_err_t bno055_get_calibrated(imu_raw_3d_t* acc_out, imu_raw_3d_t* gyr_out, imu_raw_3d_t* mag_out) {
