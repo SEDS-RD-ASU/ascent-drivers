@@ -1,3 +1,6 @@
+#ifndef INTERFACE_BMP390L_H
+#define INTERFACE_BMP390L_H
+
 #include <stdio.h>
 #include <string.h>
 #include "esp_log.h"
@@ -15,14 +18,6 @@
 #include "driver_BMP390L.h"
 #include <stdbool.h>
 #include "freertos/semphr.h"
-
-typedef struct {
-    double velocity;
-    double pressure;
-    double altitude;
-    double temperature;
-    double acceleration; // New field for acceleration
-} bmp390_vals_t;
 
 typedef struct {
     double pressure;
@@ -94,3 +89,5 @@ void bmp390_get_local(baro_double_t* baro_out);
  * @param ground_alt Ground altitude in meters
  */
 void bmp390_set_ground_alt(double ground_alt);
+
+#endif /* INTERFACE_BMP390L_H */

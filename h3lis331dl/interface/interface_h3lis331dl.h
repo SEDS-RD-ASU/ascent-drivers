@@ -1,3 +1,6 @@
+#ifndef INTERFACE_H3LIS331DL_H
+#define INTERFACE_H3LIS331DL_H
+
 #include "freertos/semphr.h"
 #include <stdbool.h>
 
@@ -42,3 +45,5 @@ void h3lis331dl_get_calibrated(imu_float_3d_t* acc_out);
  * @param local_up_flipped Whether the local up direction is flipped
  */
 void h3lis331dl_get_local(imu_float_3d_t* acc_out, bool local_up_flipped);
+
+#endif // INTERFACE_H3LIS331DL_H

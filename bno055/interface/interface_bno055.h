@@ -1,3 +1,6 @@
+#ifndef INTERFACE_BNO055_H
+#define INTERFACE_BNO055_H
+
 #include "freertos/semphr.h"
 #include "esp_err.h"
 
@@ -58,3 +61,5 @@ esp_err_t bno055_get_local(imu_raw_3d_t* acc_out, imu_raw_3d_t* gyr_out, imu_raw
 
 // Add initialization function
 void bno055_interface_init(void);
+
+#endif // INTERFACE_BNO055_H
