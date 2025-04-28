@@ -29,6 +29,8 @@ int32_t uUbxProtocolDecode(const char *pBufferIn, size_t bufferLengthBytes,
 
 uint32_t uUbxProtocolUint32Decode(const char *pByte);
 
+uint16_t uUbxProtocolUint16Encode(uint16_t uint16);
+
 int32_t sendReceiveUbxMessage_I2C(int32_t messageClass,
                                          int32_t messageId,
                                          const char *pMessageBody,

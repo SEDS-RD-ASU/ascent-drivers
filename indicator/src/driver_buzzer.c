@@ -70,10 +70,10 @@ static esp_err_t noTone(void)
 
 esp_err_t buzz(uint32_t frequency, uint32_t duration_ms)
 {
-    esp_err_t result = tone(frequency);
-    if (result != ESP_OK) {
-        return result;
-    }
+    // esp_err_t result = tone(frequency);
+    // if (result != ESP_OK) {
+    //     return result;
+    // }
 
     vTaskDelay(pdMS_TO_TICKS(duration_ms));
     return noTone();

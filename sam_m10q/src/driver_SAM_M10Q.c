@@ -228,6 +228,26 @@ uint32_t uUbxProtocolUint32Decode(const char *pByte)
     return retValue;
 }
 
+// what
+bool uUbxProtocolIsLittleEndian()
+{
+    int32_t x = 1;
+
+    return (*((char *) (&x)) == 1);
+}
+
+uint16_t uUbxProtocolUint16Encode(uint16_t uint16)
+{
+    uint16_t retValue = uint16;
+
+    if (!uUbxProtocolIsLittleEndian()) {
+        retValue  = (uint16 & 0xFF00) >> 8;
+        retValue += (uint16 & 0x00FF) << 8;
+    }
+
+    return retValue;
+}
+
 uint16_t uUbxProtocolUint16Decode(const char *pByte)
 {
     // Use a uint8_t pointer for maths, more certain of its behaviour than char
@@ -281,16 +301,23 @@ int32_t sendReceiveUbxMessage_I2C(int32_t messageClass,
     uint16_t               payloadLen;
     uint8_t               *pRxBuf = NULL;
 
+    printf("Starting sendReceiveUbxMessage_I2C with messageClass: %ld, messageId: %ld, pMessageBody: %p, messageBodyLengthBytes: %zu, pResponse: %p\n", messageClass, messageId, pMessageBody, messageBodyLengthBytes, pResponse);
+
     // 1) Parameter checks
     if ((((pMessageBody == NULL) && (messageBodyLengthBytes == 0)) ||
          (pMessageBody != NULL && messageBodyLengthBytes > 0)) &&
         (pResponse != NULL)) {
 
+        printf("Parameter checks passed\n");
+
         // 2) Allocate TX buffer
         pTxBuf = malloc(messageBodyLengthBytes + 8);
         if (pTxBuf == NULL) {
+            printf("Failed to allocate TX buffer\n");
             return (int32_t) -6;
         }
+
+        printf("TX buffer allocated successfully\n");
 
         // 3) Encode UBX frame
         txLength = uUbxProtocolEncode(messageClass,
@@ -299,9 +326,12 @@ int32_t sendReceiveUbxMessage_I2C(int32_t messageClass,
                                       messageBodyLengthBytes,
                                       pTxBuf);
         if (txLength < 0) {
+            printf("Failed to encode UBX frame\n");
             result = txLength;
             goto clean_up;
         }
+
+        printf("UBX frame encoded successfully\n");
 
         // 4) Send over I2C (register 0x00 = write-data)
         err = i2c_manager_write_register(I2C_MASTER_PORT,
@@ -310,9 +340,12 @@ int32_t sendReceiveUbxMessage_I2C(int32_t messageClass,
                                          (uint8_t *) pTxBuf,
                                          (size_t) txLength);
         if (err != ESP_OK) {
+            printf("Failed to send over I2C\n");
             result = (int32_t) err;
             goto clean_up;
         }
+
+        printf("Sent over I2C successfully\n");
 
         // 5) Read the 6-byte UBX header in a loop until the correct sync header is received
         while (1) {
@@ -322,35 +355,51 @@ int32_t sendReceiveUbxMessage_I2C(int32_t messageClass,
                                             header,
                                             sizeof(header));
             if (err != ESP_OK) {
+                printf("Failed to read UBX header\n");
                 result = (int32_t) -69;
                 goto clean_up;
             }
 
             // 6) Validate sync chars
             if (header[0] == 0xB5 && header[1] == 0x62) {
+                printf("Correct sync header received\n");
                 break; // Correct sync header received, exit the loop
             }
         }
 
+        printf("UBX header read successfully\n");
+
         // 7) Extract payload length
         payloadLen = (uint16_t) header[4] | ((uint16_t) header[5] << 8);
 
+        printf("Payload length extracted: %u\n", payloadLen);
+
         // 8) Ensure pResponse has room for payload + checksum (or allocate)
-        size_t totalLen = (size_t) payloadLen + 2;
-        if (pResponse->bodySize < totalLen) {
-            // free old buffer if any
-            if (*pResponse->ppBody != NULL) {
-                free(*pResponse->ppBody);
-                *pResponse->ppBody = NULL;
-            }
-            *pResponse->ppBody = malloc(totalLen);
-            if (*pResponse->ppBody == NULL) {
-                result = (int32_t) -6;
-                goto clean_up;
-            }
-            pResponse->bodySize = totalLen;
-        }
-        pRxBuf = (uint8_t *) *pResponse->ppBody;
+        size_t totalLen = (size_t) (payloadLen + 10);
+
+        printf("Total length needed for pResponse: %zu\n", totalLen);
+
+        printf("bodySize: %d\n", pResponse->bodySize);
+
+        // if (pResponse->bodySize < totalLen) {
+        //     printf("pResponse buffer size is insufficient\n");
+        //     // free old buffer if any
+        //     if (*pResponse->ppBody != NULL) {
+        //         free(*pResponse->ppBody);
+        //         printf("Freed pResponse!\n");
+        //         *pResponse->ppBody = NULL;
+        //     }
+        //     *pResponse->ppBody = malloc(totalLen);
+        //     if (*pResponse->ppBody == NULL) {
+        //         printf("Failed to allocate new buffer for pResponse\n");
+        //         result = (int32_t) -6;
+        //         goto clean_up;
+        //     }
+        //     pResponse->bodySize = totalLen;
+        // }
+        // pRxBuf = (uint8_t *) *pResponse->ppBody;
+
+        // printf("pResponse buffer size adjusted successfully\n");
 
         // 9) Read payload + 2-byte checksum
         err = i2c_manager_read_register(I2C_MASTER_PORT,
@@ -359,21 +408,27 @@ int32_t sendReceiveUbxMessage_I2C(int32_t messageClass,
                                         pRxBuf,
                                         totalLen);
         if (err != ESP_OK) {
+            printf("Failed to read payload + checksum\n");
             result = (int32_t) -69;
             goto clean_up;
         }
+
+        printf("Payload + checksum read successfully\n");
 
         // 11) Fill out the response struct
         pResponse->cls = header[2];
         pResponse->id  = header[3];
         // bodySize already set
         result = (int32_t) payloadLen;
+
+        printf("Response struct filled successfully\n");
     }
 
 clean_up:
     if (pTxBuf != NULL) {
         free(pTxBuf);
         pTxBuf = NULL;
+        printf("TX buffer freed\n");
     }
     return result;
 }
