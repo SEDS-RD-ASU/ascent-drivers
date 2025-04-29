@@ -1,8 +1,13 @@
 #ifndef INTERFACE_BNO055_H
 #define INTERFACE_BNO055_H
 
-#include "freertos/semphr.h"
-#include "esp_err.h"
+#include <stdint.h>  // For int16_t
+#include <stdbool.h> // For bool
+#include "esp_err.h" // For esp_err_t
+#include "esp_log.h" // For ESP_LOGE
+#include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h" // For SemaphoreHandle_t
+#include "ascent_r2_hardware_definition.h" // For MUTEX_TIMEOUT
 
 typedef struct {
     int16_t x;

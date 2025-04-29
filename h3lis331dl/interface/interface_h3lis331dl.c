@@ -2,8 +2,7 @@
 #include "driver_H3LIS331DL.h"
 #include <stdbool.h>
 #include "freertos/semphr.h"
-#include "ascent_r2_hardware_definition.h"  // Make sure this is included
-#include "esp_timer.h"
+#include "ascent_r2_hardware_definition.h"
 #include "esp_log.h"
 
 // Define a TAG for logging

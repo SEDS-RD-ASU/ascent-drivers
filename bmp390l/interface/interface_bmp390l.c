@@ -1,3 +1,7 @@
+#include "interface_bmp390l.h"
+#include "driver_BMP390L.h"
+#include "math.h"
+#include "driver_buzzer.h"
 #include "esp_timer.h"
 #include <stdio.h>
 #include <string.h>
@@ -6,15 +10,8 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "i2c_manager.h"
-#include "driver_BMP390L.h"
-#include "math.h"
-#include "driver_buzzer.h"
 #include "ascent_r2_hardware_definition.h"
-#include "interface_bmp390l.h"
 #include "freertos/semphr.h"
-
-// Define a TAG for logging
-static const char* BMP_TAG = "BMP390";
 
 // Static calibration parameters
 static float bmp_scaling = 1.0f;  // Default to no scaling

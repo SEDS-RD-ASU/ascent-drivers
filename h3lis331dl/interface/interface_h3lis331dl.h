@@ -1,8 +1,13 @@
 #ifndef INTERFACE_H3LIS331DL_H
 #define INTERFACE_H3LIS331DL_H
 
-#include "freertos/semphr.h"
+#include <stdint.h>
 #include <stdbool.h>
+#include "esp_log.h"
+#include "esp_system.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
+#include "ascent_r2_hardware_definition.h"
 
 typedef struct {
     double x;

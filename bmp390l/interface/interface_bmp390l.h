@@ -3,21 +3,17 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "esp_log.h"
-#include "nvs_flash.h"
-#include "esp_http_server.h"
-#include <stdio.h>
-#include <inttypes.h>
-#include "sdkconfig.h"
+#include "esp_system.h"
+#include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "esp_chip_info.h"
-#include "esp_flash.h"
-#include "esp_system.h"
+#include "freertos/semphr.h"
 #include "i2c_manager.h"
 #include "driver_BMP390L.h"
-#include <stdbool.h>
-#include "freertos/semphr.h"
+#include "ascent_r2_hardware_definition.h"
 
 typedef struct {
     double pressure;
