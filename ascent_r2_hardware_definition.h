@@ -66,4 +66,11 @@
 #define MAGIC 1.29375
 #define PYRO_RESISTANCE_COEFFICIENT 360000.0f
 
+
+//Wifi Config
+#define WIFI_SSID "ASCENT"
+#define WIFI_PASS "ASCENT8899"
+#define WIFI_CHANNEL 1
+#define WIFI_MAX_CONN 4
+
 #endif /* ASCENT_R2_PINS_H */ 
