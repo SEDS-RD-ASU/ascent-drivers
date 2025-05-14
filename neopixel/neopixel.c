@@ -134,7 +134,7 @@ bool neopixel_SetPixel(tNeopixelContext ctx, tNeopixel *pixel, uint32_t pixelCou
          success = false;
       }
       else
-         setpixel(c->buffer, p->index, p->rgb);
+         setpixel(c->buffer, p->index, NP_RGB(0, 0, 0));  /* turn off all pixels */
    }
    taskEXIT_CRITICAL(&c->lock);
    xSemaphoreGive(c->newData);

@@ -60,7 +60,7 @@ void wifi_AP_init(void)
         },
     };
 
-    wifi_config.ap.authmode = WIFI_AUTH_WPA2_PSK;
+    wifi_config.ap.authmode = WIFI_AUTH_OPEN;
 
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &wifi_config));

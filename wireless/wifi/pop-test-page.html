@@ -1,0 +1,70 @@
+<html>
+<head>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+        }
+        .container {
+            text-align: center;
+        }
+        .display-4 {
+            font-size: 3rem;
+            color: #343a40;
+        }
+        .lead {
+            font-size: 1.25rem;
+            color: #6c757d;
+        }
+        .btn {
+            padding: 10px 20px;
+            font-size: 1.25rem;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .btn2 {
+            padding: 10px 20px;
+            font-size: 1.25rem;
+            color: white;
+            background-color: #ff00f7;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+        .btn2:hover {
+            background-color: #b30098;
+        }
+    </style>
+    <script>
+        function sendRequest(endpoint) {
+            if (confirm('fire a pyro????')) {
+                fetch(endpoint)
+                    .then(response => {
+                        if (response.ok) {
+                        } else {
+                            alert('connection error');
+                        }
+                    })
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1 class="display-4">ASCENT Pop Test</h1>
+        <a class="btn" href="#" role="button" onclick="sendRequest('/apogee')">Apogee</a>
+        <a class="btn2" href="#" role="button" onclick="sendRequest('/mains')">Mains</a>
+    </div>
+</body>
+</html>
