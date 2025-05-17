@@ -1,48 +1,64 @@
 #ifndef DRIVER_SAM_M10Q_H
 #define DRIVER_SAM_M10Q_H
 
-#include "esp_err.h"
 
+#define SYNC_CHARS 0x62B5
+
+// UBX Data Types
+typedef uint8_t U1;  // unsigned 8-bit integer
+typedef int8_t I1;   // signed 8-bit integer
+typedef uint8_t X1;  // 8-bit bitfield
+typedef uint16_t U2; // unsigned little-endian 16-bit integer
+typedef int16_t I2;  // signed little-endian 16-bit integer
+typedef uint16_t X2; // 16-bit little-endian bitfield
+typedef uint32_t U4; // unsigned little-endian 32-bit integer
+typedef int32_t I4;  // signed little-endian 32-bit integer
+typedef uint32_t X4; // 32-bit little-endian bitfield
+
+typedef float R4;    // IEEE 754 single (32-bit) precision
+typedef double R8;   // IEEE 754 double (64-bit) precision
+typedef char CH;     // ASCII / ISO 8859-1 character (8-bit)
+
+typedef uint8_t *Un;  // unsigned bitfield of n bits width (variable size)
+typedef int8_t *In;   // signed bitfield of n bits width (variable size)
+typedef int8_t *Sn;   // signed bitfield value of n bits width (variable size)
+
+// i am sincerely sorry for anyone that has to read this code with these weird definitions (ublox moment).
+
+// UBX Frame Structure
 typedef struct {
-    int32_t cls;
-    int32_t id;
-    char **ppBody;   /**< a pointer to a pointer that the received
-                          message body will be written to. If *ppBody is NULL
-                          memory will be allocated.  If ppBody is NULL
-                          then the response is not captured (but this
-                          structure may still be used for cls/id matching). */
-    size_t bodySize; /**< the number of bytes of storage at *ppBody;
-                          must be zero if ppBody is NULL or
-                          *ppBody is NULL.  If non-zero it MUST be
-                          large enough to fit the body in or the
-                          CRC calculation will fail. */
-} uGnssPrivateUbxReceiveMessage_t;
+    U2 sync_chars;
+    U1 message_class;
+    U1 message_id;
+    U2 length;
+    Un payload;
+    U2 checksum;
+} ubxFrame;
 
-int32_t uUbxProtocolEncode(int32_t messageClass, int32_t messageId,
-                           const char *pMessage, size_t messageBodyLengthBytes,
-                           char *pBuffer);
+// Config layer enum
+typedef enum {
+    RAM = 0,
+    BBR = 1,
+    Flash = 2,
+} ubxCfgLayer;
 
-int32_t uUbxProtocolDecode(const char *pBufferIn, size_t bufferLengthBytes,
-                           int32_t *pMessageClass, int32_t *pMessageId,
-                           char *pMessage, size_t maxMessageLengthBytes,
-                           const char **ppBufferOut);
+// Config data structure
+typedef struct {
+    U4 key_id;
+    Un value;
+    U1 value_size; // size of the value in bytes
+} ubxCfgData;
 
-uint32_t uUbxProtocolUint32Decode(const char *pByte);
+void ubxChecksum(uint8_t *buffer, int packet_length, U2 *checksum);
 
-uint16_t uUbxProtocolUint16Encode(uint16_t uint16);
+void ubxAckAck(ubxFrame *ackframe, ubxFrame sentframe);
 
-int32_t sendReceiveUbxMessage_I2C(int32_t messageClass,
-                                         int32_t messageId,
-                                         const char *pMessageBody,
-                                         size_t messageBodyLengthBytes,
-                                         uGnssPrivateUbxReceiveMessage_t *pResponse);
+void ubxAckNak(ubxFrame *nakframe, ubxFrame sentframe);
 
-int32_t posDecode(char *pMessage,
-                         int32_t *pLatitudeX1e7, int32_t *pLongitudeX1e7,
-                         int32_t *pAltitudeMillimetres,
-                         int32_t *pRadiusMillimetres,
-                         int32_t *pAltitudeUncertaintyMillimetres,
-                         int32_t *pSpeedMillimetresPerSecond,
-                         int32_t *pSvs, int64_t *pTimeUtc, bool printIt);
+void ubxCfgValset(ubxFrame *frame, U1 layer, ubxCfgData data, ubxCfgData data2, uint8_t repeat_times);
 
-#endif /* DRIVER_SAM_M10Q_H */ 
+void sendUbxFrame(ubxFrame frame);
+
+void ubxCfgRstStartGNSS(ubxFrame *frame);
+
+#endif /* DRIVER_SAM_M10Q_H */
