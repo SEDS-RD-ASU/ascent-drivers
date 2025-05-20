@@ -76,8 +76,11 @@ esp_err_t i2c_manager_read_register(i2c_port_t port, uint8_t device_addr,
     i2c_master_read_byte(cmd, data + len - 1, I2C_MASTER_NACK);
     i2c_master_stop(cmd);
     
-    esp_err_t ret = i2c_master_cmd_begin(port, cmd, 1000 / portTICK_PERIOD_MS);
+    esp_err_t ret = i2c_master_cmd_begin(port, cmd, 5000 / portTICK_PERIOD_MS);
     i2c_cmd_link_delete(cmd);
+    if (ret != ESP_OK) {
+        printf("i2c_manager_read_register failed with error code: %d\n", ret);
+    }
     
     return ret;
 }
@@ -96,8 +99,53 @@ esp_err_t i2c_manager_write_register(i2c_port_t port, uint8_t device_addr,
     i2c_master_write(cmd, data, len, true);
     i2c_master_stop(cmd);
     
-    esp_err_t ret = i2c_master_cmd_begin(port, cmd, 1000 / portTICK_PERIOD_MS);
+    esp_err_t ret = i2c_master_cmd_begin(port, cmd, 5000 / portTICK_PERIOD_MS);
     i2c_cmd_link_delete(cmd);
     
     return ret;
 } 
+
+esp_err_t i2c_manager_write_yeet(i2c_port_t port, uint8_t device_addr, uint8_t *data, size_t len) {
+    if (!i2c_initialized[port]) {
+        return ESP_ERR_INVALID_STATE;
+    }
+
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, (device_addr << 1) | I2C_MASTER_WRITE, true);
+    i2c_master_write(cmd, data, len, true); 
+    i2c_master_stop(cmd);
+    
+    esp_err_t ret = i2c_master_cmd_begin(port, cmd, 5000 / portTICK_PERIOD_MS);
+    i2c_cmd_link_delete(cmd);
+
+    if (ret != ESP_OK) {
+        printf("i2c_manager_write_yeet failed with error code: %d\n", ret);
+    }
+    
+    return ret;
+}
+
+esp_err_t i2c_manager_read_yeet(i2c_port_t port, uint8_t device_addr, uint8_t *data, size_t len) {
+    if (!i2c_initialized[port]) {
+        return ESP_ERR_INVALID_STATE;
+    }
+
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    
+    // Write the register address we want to read from
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, (device_addr << 1) | I2C_MASTER_WRITE, true);
+    
+    if (len > 1) {
+        i2c_master_read(cmd, data, len - 1, I2C_MASTER_ACK);
+    }
+    i2c_master_read_byte(cmd, data + len - 1, I2C_MASTER_NACK);
+    i2c_master_stop(cmd);
+    
+    esp_err_t ret = i2c_master_cmd_begin(port, cmd, 5000 / portTICK_PERIOD_MS);
+    i2c_cmd_link_delete(cmd);
+    
+    return ret;
+}
