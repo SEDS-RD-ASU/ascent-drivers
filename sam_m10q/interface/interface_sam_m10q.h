@@ -1,0 +1,4 @@
+#ifndef INTERFACE_SAM_M10Q_H
+#define INTERFACE_SAM_M10Q_H
+
+#endif /* INTERFACE_SAM_M10Q_H */
