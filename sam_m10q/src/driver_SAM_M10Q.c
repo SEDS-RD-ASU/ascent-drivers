@@ -101,7 +101,7 @@ void ubxConstellations()
     vTaskDelay(10/portTICK_PERIOD_MS);
 }
 
-void ubxReadStream()
+void ubxReadStream(uint32_t *UTCtstamp, int32_t *lon, int32_t *lat, int32_t *height, int32_t *hMSL, uint8_t *fixType, uint8_t *numSV)
 {
     uint16_t avail = ubxAvailableBytes();
     printf("Available bytes in GPS stream: %u\n", avail);
@@ -138,22 +138,13 @@ void ubxReadStream()
         i2c_manager_read_register(I2C_MASTER_PORT, SAM_M10Q_I2C_ADDR, 0xFF, navpvt_payload, 92);
 
         // Parse some key fields from the payload
-        uint32_t iTOW = navpvt_payload[0] | (navpvt_payload[1] << 8) | (navpvt_payload[2] << 16) | (navpvt_payload[3] << 24);
-        int32_t lon = navpvt_payload[24] | (navpvt_payload[25] << 8) | (navpvt_payload[26] << 16) | (navpvt_payload[27] << 24);
-        int32_t lat = navpvt_payload[28] | (navpvt_payload[29] << 8) | (navpvt_payload[30] << 16) | (navpvt_payload[31] << 24);
-        int32_t height = navpvt_payload[32] | (navpvt_payload[33] << 8) | (navpvt_payload[34] << 16) | (navpvt_payload[35] << 24);
-        int32_t hMSL = navpvt_payload[36] | (navpvt_payload[37] << 8) | (navpvt_payload[38] << 16) | (navpvt_payload[39] << 24);
-        uint8_t fixType = navpvt_payload[20];
-        uint8_t numSV = navpvt_payload[23];
-
-        printf("NAV-PVT:\n");
-        printf("  iTOW: %lu ms\n", iTOW);
-        printf("  Fix Type: %u\n", fixType);
-        printf("  Num SV: %u\n", numSV);
-        printf("  Lon: %.7f deg\n", lon / 1e7);
-        printf("  Lat: %.7f deg\n", lat / 1e7);
-        printf("  Height: %.3f m\n", height / 1000.0);
-        printf("  Height MSL: %.3f m\n", hMSL / 1000.0);
+        *UTCtstamp = navpvt_payload[0] | (navpvt_payload[1] << 8) | (navpvt_payload[2] << 16) | (navpvt_payload[3] << 24);
+        *lon = navpvt_payload[24] | (navpvt_payload[25] << 8) | (navpvt_payload[26] << 16) | (navpvt_payload[27] << 24);
+        *lat = navpvt_payload[28] | (navpvt_payload[29] << 8) | (navpvt_payload[30] << 16) | (navpvt_payload[31] << 24);
+        *height = navpvt_payload[32] | (navpvt_payload[33] << 8) | (navpvt_payload[34] << 16) | (navpvt_payload[35] << 24);
+        *hMSL = navpvt_payload[36] | (navpvt_payload[37] << 8) | (navpvt_payload[38] << 16) | (navpvt_payload[39] << 24);
+        *fixType = navpvt_payload[20];
+        *numSV = navpvt_payload[23];
     }
 }
 
@@ -179,7 +170,7 @@ void ubxFreezeTimePulse()
     vTaskDelay(10/portTICK_PERIOD_MS);
 }
 
-void ubxReadStreamTiming()
+void ubxReadStreamTiming() // do not use in flight
 {
     uint16_t avail = ubxAvailableBytes();
     printf("Available bytes in GPS stream: %u\n", avail);

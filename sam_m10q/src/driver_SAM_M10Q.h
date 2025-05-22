@@ -9,7 +9,7 @@ void ubxDisableNMEA();
 
 void ubxEnableNavPVT();
 
-void ubxReadStream();
+void ubxReadStream(uint32_t *UTCtstamp, int32_t *lon, int32_t *lat, int32_t *height, int32_t *hMSL, uint8_t *fixType, uint8_t *numSV);
 
 void ubxReadStreamTiming();
 
