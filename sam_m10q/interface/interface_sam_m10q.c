@@ -58,8 +58,8 @@ void GPS_init(void) {
     ubxReadStream(NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 }
 
-void GPS_read(uint32_t *UTCtstamp, int32_t *lon, int32_t *lat, int32_t *height, int32_t *hMSL, uint8_t *fixType, uint8_t *numSV) {
-    ubxReadStream(UTCtstamp, lon, lat, height, hMSL, fixType, numSV);
+void GPS_read(uint32_t *UTCtstamp, int32_t *lon, int32_t *lat, int32_t *gps_altitude, int32_t *hMSL, uint8_t *fixType, uint8_t *numSV) {
+    ubxReadStream(UTCtstamp, lon, lat, gps_altitude, hMSL, fixType, numSV);
 }
 
 void GPS_timing_debug(void) {
