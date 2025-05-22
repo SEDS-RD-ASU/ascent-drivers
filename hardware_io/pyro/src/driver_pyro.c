@@ -189,6 +189,13 @@ esp_err_t pyro_activate(pyro_channel_t channel, uint8_t delay, bool bypass) {
     return ESP_OK;
 }
 
+bool pyro_is_activated(pyro_channel_t channel) {
+    if (channel < 1 || channel > 4) {
+        return false;
+    }
+    return gpio_get_level(pyro_out_pins[channel - 1]);
+}
+
 void pyro_deinit(void) {
     // Clean up calibration handles
     for (int i = 0; i < 4; i++) {
