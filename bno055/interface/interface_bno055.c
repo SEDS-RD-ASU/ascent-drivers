@@ -99,8 +99,8 @@ esp_err_t bno055_get_raw(imu_raw_3d_t* acc, imu_raw_3d_t* gyr, imu_raw_3d_t* mag
     if (xSemaphoreTake(bno055_mutex, pdMS_TO_TICKS(MUTEX_TIMEOUT)) == pdTRUE) {
         bno_readamg(
             &acc->x, &acc->y, &acc->z,
-            &gyr->x, &gyr->y, &gyr->z,
-            &mag->x, &mag->y, &mag->z
+            &mag->x, &mag->y, &mag->z,
+            &gyr->x, &gyr->y, &gyr->z
         );
         xSemaphoreGive(bno055_mutex);
         return ESP_OK;
@@ -190,12 +190,12 @@ esp_err_t bno055_get_local(imu_raw_3d_t* acc_out, imu_raw_3d_t* gyr_out, imu_raw
     // Apply -45° rotation
     rotate_z_45(acc_cal, acc_rot);
     rotate_z_45(gyr_cal, gyr_rot);
-    rotate_z_45(mag_cal, mag_rot);
+    //rotate_z_45(mag_cal, mag_rot);
 
     // Flip X axis if needed
     flip_x_if_needed(acc_rot, local_up_flipped);
     flip_x_if_needed(gyr_rot, local_up_flipped);
-    flip_x_if_needed(mag_rot, local_up_flipped);
+    //flip_x_if_needed(mag_rot, local_up_flipped);
 
     // Store rotated results
     acc_out->x = (int16_t)acc_rot[0];
@@ -206,9 +206,9 @@ esp_err_t bno055_get_local(imu_raw_3d_t* acc_out, imu_raw_3d_t* gyr_out, imu_raw
     gyr_out->y = (int16_t)gyr_rot[1];
     gyr_out->z = (int16_t)gyr_rot[2];
 
-    mag_out->x = (int16_t)mag_rot[0];
-    mag_out->y = (int16_t)mag_rot[1];
-    mag_out->z = (int16_t)mag_rot[2];
+    mag_out->x = (int16_t)mag_cal[0];
+    mag_out->y = (int16_t)mag_cal[1];
+    mag_out->z = (int16_t)mag_cal[2];
 
 #ifdef FUNCTION_DURATION
     int64_t end_time = esp_timer_get_time();
