@@ -25,37 +25,37 @@ void GPS_init(void) {
 
     ubxDisableNMEA();
 
-    ubxReadStream(NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+    ubxReadStreamTiming();
 
     printf("Setting 10hz...\n\n");
 
     ubx10HzGPS();
 
-    ubxReadStream(NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+    ubxReadStreamTiming();
 
     printf("Setting constellations to GPS only...\n\n");
 
     ubxConstellations();
 
-    ubxReadStream(NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+    ubxReadStreamTiming();
 
     printf("Setting 20hz for timepulse...\n\n");
 
-    ubxFreezeTimePulse();
+    // ubxFreezeTimePulse();
 
-    ubxReadStream(NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+    ubxReadStreamTiming();
 
     printf("Enabling NAV_PVT messages...\n\n");
 
     ubxEnableNavPVT();
 
-    ubxReadStream(NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+    ubxReadStreamTiming();
 
     printf("Setting rate for NAV_PVT messages...\n\n");
 
     ubxMsgOutCfg();
 
-    ubxReadStream(NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+    ubxReadStreamTiming();
 }
 
 void GPS_read(uint32_t *UTCtstamp, int32_t *lon, int32_t *lat, int32_t *gps_altitude, int32_t *hMSL, uint8_t *fixType, uint8_t *numSV) {
