@@ -84,6 +84,8 @@ double psu_read_battery_voltage(void) {
 
     // ESP_LOGI(TAG, "Battery ADC Raw: %d, Calibrated: %dmV, Actual: %.3fV", 
             //  adc_raw, voltage_mv, actual_voltage);
+    // ESP_LOGI(TAG, "Battery ADC Raw: %d, Calibrated: %dmV, Actual: %.3fV", 
+    //          adc_raw, voltage_mv, actual_voltage);
 
     return actual_voltage;
 }

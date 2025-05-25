@@ -99,8 +99,8 @@ esp_err_t bno055_get_raw(imu_raw_3d_t* acc, imu_raw_3d_t* gyr, imu_raw_3d_t* mag
     if (xSemaphoreTake(bno055_mutex, pdMS_TO_TICKS(MUTEX_TIMEOUT)) == pdTRUE) {
         bno_readamg(
             &acc->x, &acc->y, &acc->z,
-            &gyr->x, &gyr->y, &gyr->z,
-            &mag->x, &mag->y, &mag->z
+            &mag->x, &mag->y, &mag->z,
+            &gyr->x, &gyr->y, &gyr->z
         );
         xSemaphoreGive(bno055_mutex);
         return ESP_OK;
