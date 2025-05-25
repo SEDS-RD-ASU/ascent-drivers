@@ -104,7 +104,7 @@ void ubxConstellations()
 void ubxReadStream(uint32_t *UTCtstamp, int32_t *lon, int32_t *lat, int32_t *height, int32_t *hMSL, uint8_t *fixType, uint8_t *numSV)
 {
     uint16_t avail = ubxAvailableBytes();
-    printf("Available bytes in GPS stream: %u\n", avail);
+    // printf("Available bytes in GPS stream: %u\n", avail);
     uint8_t byte = 0;
     int tries = 0;
     do {
@@ -113,7 +113,7 @@ void ubxReadStream(uint32_t *UTCtstamp, int32_t *lon, int32_t *lat, int32_t *hei
     } while (byte != 0xB5);
 
     if (byte == 0xB5) {
-        printf("0xB5 found in stream after %d tries\n", tries);
+        // printf("0xB5 found in stream after %d tries\n", tries);
     }
     if (tries > 500) {
         printf("Failed to find 0xB5 in stream after 500 tries\n");
@@ -121,7 +121,7 @@ void ubxReadStream(uint32_t *UTCtstamp, int32_t *lon, int32_t *lat, int32_t *hei
     }
 
     i2c_manager_read_register(I2C_MASTER_PORT, SAM_M10Q_I2C_ADDR, 0xFF, &byte, 1);
-    printf("Second Byte: 0x%02X\n", byte);
+    // printf("Second Byte: 0x%02X\n", byte);
 
     uint8_t header[4] = {0};
     i2c_manager_read_register(I2C_MASTER_PORT, SAM_M10Q_I2C_ADDR, 0xFF, header, 4);
@@ -130,7 +130,7 @@ void ubxReadStream(uint32_t *UTCtstamp, int32_t *lon, int32_t *lat, int32_t *hei
     uint8_t msg_id = header[1];
     uint16_t msg_length = ((uint16_t)header[3] << 8) | header[2];
 
-    printf("Message Class: 0x%02X, Message ID: 0x%02X, Length: %u\n\n", msg_class, msg_id, msg_length);
+    // printf("Message Class: 0x%02X, Message ID: 0x%02X, Length: %u\n\n", msg_class, msg_id, msg_length);
 
     if (msg_class == 0x01 && msg_id == 0x07 && msg_length == 92) {
         // Read the NAV-PVT payload (92 bytes)
