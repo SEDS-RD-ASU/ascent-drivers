@@ -45,14 +45,14 @@ void bno055_interface_init(void) {
 // Helper function to apply 3x3 matrix multiplication and bias addition
 static void apply_calibration(float* input, float matrix[3][3], float* bias, float* output) {
     // Matrix multiplication
+    // Add bias
+    input[0] -= bias[0];
+    input[1] -= bias[1];
+    input[2] -= bias[2];
+
     output[0] = matrix[0][0] * input[0] + matrix[0][1] * input[1] + matrix[0][2] * input[2];
     output[1] = matrix[1][0] * input[0] + matrix[1][1] * input[1] + matrix[1][2] * input[2];
     output[2] = matrix[2][0] * input[0] + matrix[2][1] * input[1] + matrix[2][2] * input[2];
-
-    // Add bias
-    output[0] += bias[0];
-    output[1] += bias[1];
-    output[2] += bias[2];
 }
 
 // Helper function to rotate a vector -45 degrees around Z axis
