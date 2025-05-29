@@ -1,4 +1,4 @@
-# Ascent R2 Hardware Validation Libraries
+# Ascent R2 Drivers
 
 This directory contains the driver libraries for the Ascent R2 flight computer hardware components. Each library is organized in its own directory with source files and documentation.
 
