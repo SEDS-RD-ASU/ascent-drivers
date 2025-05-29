@@ -57,4 +57,7 @@ esp_err_t i2c_manager_read_register(i2c_port_t port, uint8_t device_addr,
 esp_err_t i2c_manager_write_register(i2c_port_t port, uint8_t device_addr, 
                                    uint8_t reg, uint8_t *data, size_t len);
 
+esp_err_t i2c_manager_write_yeet(i2c_port_t port, uint8_t device_addr, uint8_t *data, size_t len);
+esp_err_t i2c_manager_read_yeet(i2c_port_t port, uint8_t device_addr, uint8_t *data, size_t len);
+
 #endif // I2C_MANAGER_H 

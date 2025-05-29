@@ -8,5 +8,5 @@ idf_component_register(
         "examples"
         "interface"
         "${CMAKE_CURRENT_SOURCE_DIR}/.."
-    REQUIRES driver i2c
+    REQUIRES driver i2c esp_timer
 ) 

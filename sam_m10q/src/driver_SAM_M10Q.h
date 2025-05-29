@@ -1,26 +1,28 @@
 #ifndef DRIVER_SAM_M10Q_H
 #define DRIVER_SAM_M10Q_H
 
-#include "esp_err.h"
+uint16_t ubxAvailableBytes();
 
-/**
- * @brief Initialize the SAM-M10Q GPS module
- * 
- * @param sda The GPIO pin number for SDA
- * @param scl The GPIO pin number for SCL
- * @param port The I2C port number
- * @param freq The I2C frequency in Hz
- * @return esp_err_t ESP_OK on success
- */
-esp_err_t sam_m10q_init(int sda, int scl, int port, uint32_t freq);
+void ubxReadBytes(uint8_t *buf, uint16_t num_bytes);
 
-/**
- * @brief Configure GPS to output at 10Hz
- * 
- * @return esp_err_t ESP_OK on success
- */
-esp_err_t sam_m10q_set_10hz(void);
+void ubxDisableNMEA();
 
-char* readNmeaStream(void);
+void ubxEnableNavPVT();
 
-#endif /* DRIVER_SAM_M10Q_H */ 
+void ubxReadStream(uint32_t *UTCtstamp, int32_t *lon, int32_t *lat, int32_t *height, int32_t *hMSL, uint8_t *fixType, uint8_t *numSV);
+
+void ubxReadStreamTiming();
+
+void ubxResetGPS();
+
+void ubx10HzGPS();
+
+// void ubx25hzGPS(); // DOO NOOTTT USE UNLESS YOU KNOW WHAT YOURE DOING.
+
+void ubxConstellations();
+
+void ubxMsgOutCfg();
+
+void ubxFreezeTimePulse();
+
+#endif /* DRIVER_SAM_M10Q_H */

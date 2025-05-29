@@ -543,8 +543,16 @@ lora_init(void)
    //    .quadhd_io_num = -1,
    //    .max_transfer_sz = 0
    // };
+   // spi_bus_config_t bus = {
+   //    .miso_io_num = CONFIG_MISO_GPIO,
+   //    .mosi_io_num = CONFIG_MOSI_GPIO,
+   //    .sclk_io_num = CONFIG_SCK_GPIO,
+   //    .quadwp_io_num = -1,
+   //    .quadhd_io_num = -1,
+   //    .max_transfer_sz = 0
+   // };
            
-   //ret = spi_bus_initialize(VSPI_HOST, &bus, 0);
+   // //ret = spi_bus_initialize(VSPI_HOST, &bus, 0);
    // ret = spi_bus_initialize(HOST_ID, &bus, SPI_DMA_CH_AUTO);
    // assert(ret == ESP_OK);
 
