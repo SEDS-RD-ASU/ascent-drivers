@@ -15,6 +15,14 @@ typedef struct {
     int16_t z;
 } imu_raw_3d_t;
 
+typedef struct {
+    float x;
+    float y;
+    float z;
+} imu_local_3d_t;
+
+
+
 // Add the mutex declaration before the function declarations
 extern SemaphoreHandle_t bno055_mutex;
 
@@ -46,23 +54,23 @@ esp_err_t bno055_get_raw(imu_raw_3d_t* acc, imu_raw_3d_t* gyr, imu_raw_3d_t* mag
 /**
  * @brief Get calibrated readings from BNO055
  * 
- * @param acc_out Pointer to store calibrated accelerometer data
- * @param gyr_out Pointer to store calibrated gyroscope data
- * @param mag_out Pointer to store calibrated magnetometer data
+ * @param acc_out Pointer to store calibrated accelerometer data (float)
+ * @param gyr_out Pointer to store calibrated gyroscope data (float)
+ * @param mag_out Pointer to store calibrated magnetometer data (float)
  * @return esp_err_t ESP_OK if successful, ESP_FAIL otherwise
  */
-esp_err_t bno055_get_calibrated(imu_raw_3d_t* acc_out, imu_raw_3d_t* gyr_out, imu_raw_3d_t* mag_out);
+esp_err_t bno055_get_calibrated(imu_local_3d_t* acc_out, imu_local_3d_t* gyr_out, imu_local_3d_t* mag_out);
 
 /**
  * @brief Get readings in local frame (after rotation and flip if needed)
  * 
- * @param acc_out Pointer to store local frame accelerometer data
- * @param gyr_out Pointer to store local frame gyroscope data
- * @param mag_out Pointer to store local frame magnetometer data
+ * @param acc_out Pointer to store local frame accelerometer data (float)
+ * @param gyr_out Pointer to store local frame gyroscope data (float)
+ * @param mag_out Pointer to store local frame magnetometer data (float)
  * @param local_up_flipped Whether the local up direction is flipped
  * @return esp_err_t ESP_OK if successful, ESP_FAIL otherwise
  */
-esp_err_t bno055_get_local(imu_raw_3d_t* acc_out, imu_raw_3d_t* gyr_out, imu_raw_3d_t* mag_out, bool local_up_flipped);
+esp_err_t bno055_get_local(imu_local_3d_t* acc_out, imu_local_3d_t* gyr_out, imu_local_3d_t* mag_out, bool local_up_flipped);
 
 // Add initialization function
 void bno055_interface_init(void);
