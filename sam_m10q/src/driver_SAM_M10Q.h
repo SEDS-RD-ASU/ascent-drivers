@@ -25,4 +25,6 @@ void ubxMsgOutCfg();
 
 void ubxFreezeTimePulse();
 
+void ubxDisableBDS_B1();
+
 #endif /* DRIVER_SAM_M10Q_H */

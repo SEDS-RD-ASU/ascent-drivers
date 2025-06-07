@@ -99,6 +99,8 @@ void ubxConstellations()
     };
     i2c_manager_write_yeet(I2C_MASTER_PORT, SAM_M10Q_I2C_ADDR, constellations_msg, sizeof(constellations_msg));
     vTaskDelay(10/portTICK_PERIOD_MS);
+
+    ubxDisableBDS_B1();
 }
 
 void ubxReadStream(uint32_t *UTCtstamp, int32_t *lon, int32_t *lat, int32_t *height, int32_t *hMSL, uint8_t *fixType, uint8_t *numSV)
@@ -170,22 +172,59 @@ void ubxFreezeTimePulse()
     vTaskDelay(10/portTICK_PERIOD_MS);
 }
 
+void ubxDisableBDS_B1()
+{
+    uint8_t disable_bds_b1_msg[] = {
+        0xB5, 0x62, 0x06, 0x8A, 0x09, 0x00, 0x00, 0x01, 0x00, 0x00, 0x0D, 0x00, 0x31, 0x10, 0x00, 0xE8, 0x25
+    };
+    i2c_manager_write_yeet(I2C_MASTER_PORT, SAM_M10Q_I2C_ADDR, disable_bds_b1_msg, sizeof(disable_bds_b1_msg));
+    vTaskDelay(10/portTICK_PERIOD_MS);
+}
+
+void disablePositionUpdates()
+{
+    uint8_t disable_position_updates_msg[] = {
+        0xB5, 0x62, 0x06, 0x8A, 0x0C, 0x00, 0x00, 0x01, 0x00, 0x00, 0x02, 0x00, 0xD0, 0x40, 0x00, 0x00, 0x00, 0x00, 0xAF, 0x59
+    };
+    i2c_manager_write_yeet(I2C_MASTER_PORT, SAM_M10Q_I2C_ADDR, disable_position_updates_msg, sizeof(disable_position_updates_msg));
+    vTaskDelay(10/portTICK_PERIOD_MS);
+}
+
+void defaultPositionUpdates()
+{
+    uint8_t default_position_updates_msg[] = {
+        0xB5, 0x62, 0x06, 0x8A, 0x0C, 0x00, 0x00, 0x01, 0x00, 0x00, 0x02, 0x00, 0xD0, 0x40, 0x0A, 0x00, 0x00, 0x00, 0xB9, 0x81
+    };
+    i2c_manager_write_yeet(I2C_MASTER_PORT, SAM_M10Q_I2C_ADDR, default_position_updates_msg, sizeof(default_position_updates_msg));
+}
+
+void enablePSMOO()
+{
+    uint8_t enable_psm_msg[] = {
+        0xb5, 0x62, 0x6, 0x8a, 0x9, 0x0, 0x0, 0x1, 0x0, 0x0, 0x1, 0x0, 0xd0, 0x20, 0x1, 0x8c, 0xe7
+    };
+    i2c_manager_write_yeet(I2C_MASTER_PORT, SAM_M10Q_I2C_ADDR, enable_psm_msg, sizeof(enable_psm_msg));
+    vTaskDelay(10/portTICK_PERIOD_MS);
+}
+
+void disablePSMOO()
+{
+    uint8_t disable_psm_msg[] = {
+        0xb5, 0x62, 0x6, 0x8a, 0x9, 0x0, 0x0, 0x1, 0x0, 0x0, 0x1, 0x0, 0xd0, 0x20, 0x0, 0x8b, 0xe6
+    };
+    i2c_manager_write_yeet(I2C_MASTER_PORT, SAM_M10Q_I2C_ADDR, disable_psm_msg, sizeof(disable_psm_msg));
+}
+
 void ubxLowPowerMode()
 {
-    uint8_t lower_power_msg[] = {
-        // TODO
-    };
-    i2c_manager_write_yeet(I2C_MASTER_PORT, SAM_M10Q_I2C_ADDR, lower_power_msg, sizeof(lower_power_msg));
-    vTaskDelay(10/portTICK_PERIOD_MS);
+    enablePSMOO();
+    disablePositionUpdates();
 }
 
 void ubxNormalPowerMode()
 {
-    uint8_t normal_power_msg[] = {
-        // TODO
-    };
-    i2c_manager_write_yeet(I2C_MASTER_PORT, SAM_M10Q_I2C_ADDR, normal_power_msg, sizeof(normal_power_msg));
-    vTaskDelay(10/portTICK_PERIOD_MS);
+    defaultPositionUpdates();
+    disablePSMOO();
 }
 
 
