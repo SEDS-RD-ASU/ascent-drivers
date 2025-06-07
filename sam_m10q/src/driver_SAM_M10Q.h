@@ -27,4 +27,8 @@ void ubxFreezeTimePulse();
 
 void ubxDisableBDS_B1();
 
+void ubxLowPowerMode();
+
+void ubxNormalPowerMode();
+
 #endif /* DRIVER_SAM_M10Q_H */
