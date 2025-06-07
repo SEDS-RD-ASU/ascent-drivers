@@ -72,3 +72,11 @@ void GPS_reset(void) {
     ubxReadStream(NULL, NULL, NULL, NULL, NULL, NULL, NULL);
     printf("Reset GPS!\n\n");
 }
+
+void GPS_low_power_mode(void) {
+    ubxLowPowerMode();
+}
+
+void GPS_high_power_mode(void) {
+    ubxNormalPowerMode();
+}

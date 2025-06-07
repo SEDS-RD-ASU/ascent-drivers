@@ -11,4 +11,8 @@ void GPS_timing_debug(void);
 
 void GPS_reset(void);
 
+void GPS_low_power_mode(void);
+
+void GPS_high_power_mode(void);
+
 #endif /* INTERFACE_SAM_M10Q_H */
