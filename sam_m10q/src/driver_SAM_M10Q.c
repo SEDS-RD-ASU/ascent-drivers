@@ -170,6 +170,25 @@ void ubxFreezeTimePulse()
     vTaskDelay(10/portTICK_PERIOD_MS);
 }
 
+void ubxLowPowerMode()
+{
+    uint8_t lower_power_msg[] = {
+        // TODO
+    };
+    i2c_manager_write_yeet(I2C_MASTER_PORT, SAM_M10Q_I2C_ADDR, lower_power_msg, sizeof(lower_power_msg));
+    vTaskDelay(10/portTICK_PERIOD_MS);
+}
+
+void ubxNormalPowerMode()
+{
+    uint8_t normal_power_msg[] = {
+        // TODO
+    };
+    i2c_manager_write_yeet(I2C_MASTER_PORT, SAM_M10Q_I2C_ADDR, normal_power_msg, sizeof(normal_power_msg));
+    vTaskDelay(10/portTICK_PERIOD_MS);
+}
+
+
 void ubxReadStreamTiming() // do not use in flight
 {
     uint16_t avail = ubxAvailableBytes();
