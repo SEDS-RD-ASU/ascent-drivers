@@ -80,7 +80,7 @@ double psu_read_battery_voltage(void) {
     
     // Convert from mV to V and apply voltage divider scaling
     double measured_voltage = voltage_mv / 1000.0;
-    double actual_voltage = measured_voltage * DIVIDER_RATIO;
+    double actual_voltage = measured_voltage * DIVIDER_RATIO * MAGIC;
 
     // ESP_LOGI(TAG, "Battery ADC Raw: %d, Calibrated: %dmV, Actual: %.3fV", 
             //  adc_raw, voltage_mv, actual_voltage);
