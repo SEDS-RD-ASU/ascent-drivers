@@ -168,7 +168,7 @@ void ubxFreezeTimePulse()
         0x00,0x00,0x00,0x80,0x00,0x00,0x00,0x80,0x00,0x00,0x00,0x00,0x6F,0x00,0x00,0x00,
         0x23,0x02 // Fletcher checksum, correct for preceeding frame
     };
-    i2c_manager_write_yeet(I2C_MASTER_PORT, SAM_M10Q_I2C_ADDR, timepulse_10mhz_msg, sizeof(timepulse_10mhz_msg));
+    // i2c_manager_write_yeet(I2C_MASTER_PORT, SAM_M10Q_I2C_ADDR, timepulse_10mhz_msg, sizeof(timepulse_10mhz_msg));
     vTaskDelay(10/portTICK_PERIOD_MS);
 }
 
