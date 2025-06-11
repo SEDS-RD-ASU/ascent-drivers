@@ -94,7 +94,11 @@ esp_err_t note(note_t note, octave_t octave, uint32_t duration_ms)
     if (freq < BUZZER_LEDC_FREQ_MIN || freq > BUZZER_LEDC_FREQ_MAX) {
         return ESP_ERR_INVALID_ARG;
     }
+    #ifndef DISABLE_BUZZER
     return buzz((uint32_t)(freq + 0.5), duration_ms);
+    #else
+    return ESP_OK;
+    #endif
 }
 
 esp_err_t note_transition(note_t target_note, octave_t target_octave, uint32_t duration_ms)
