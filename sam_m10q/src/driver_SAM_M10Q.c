@@ -219,14 +219,14 @@ void ubxLowPowerMode()
 {
     // enablePSMOO();
     // disablePositionUpdates();
-    printf("Function TODO\n");
+    //printf("Function TODO\n");
 }
 
 void ubxNormalPowerMode()
 {
     // defaultPositionUpdates();
     // disablePSMOO();
-    printf("Function TODO\n");
+    //printf("Function TODO\n");
 }
 
 
