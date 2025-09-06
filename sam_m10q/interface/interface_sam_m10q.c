@@ -16,6 +16,8 @@
 #include "i2c_manager.h"
 #include "driver_SAM_M10Q.h"
 
+#define GPS_PRINTS
+
 void GPS_init(void) {
     ubxResetGPS();
 
@@ -60,6 +62,9 @@ void GPS_init(void) {
 
 void GPS_read(uint32_t *UTCtstamp, int32_t *lon, int32_t *lat, int32_t *gps_altitude, int32_t *hMSL, uint8_t *fixType, uint8_t *numSV) {
     ubxReadStream(UTCtstamp, lon, lat, gps_altitude, hMSL, fixType, numSV);
+    #ifdef GPS_PRINTS
+    printf("GPS_read: UTCtstamp: %lu, lon: %ld, lat: %ld, gps_altitude: %ld, hMSL: %ld, fixType: %u, numSV: %u\n", *UTCtstamp, *lon, *lat, *gps_altitude, *hMSL, *fixType, *numSV);
+    #endif
 }
 
 void GPS_timing_debug(void) {

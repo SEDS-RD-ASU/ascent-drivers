@@ -2,6 +2,8 @@
 #include "esp_rom_sys.h"
 #include <math.h>
 
+#define DISABLE_BUZZER
+
 #define BUZZER_LEDC_TIMER          LEDC_TIMER_0
 #define BUZZER_LEDC_MODE           LEDC_LOW_SPEED_MODE
 #define BUZZER_LEDC_CHANNEL        LEDC_CHANNEL_0
