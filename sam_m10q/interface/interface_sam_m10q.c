@@ -17,6 +17,30 @@
 #include "driver_SAM_M10Q.h"
 
 
-void GPS_read(uint32_t *UTCtstamp, int32_t *lon, int32_t *lat, int32_t *gps_altitude, int32_t *hMSL, uint8_t *fixType, uint8_t *numSV) {
+void GPS_ReqNavPVT(uint32_t *UTCtstamp, int32_t *lon, int32_t *lat, int32_t *gps_altitude, int32_t *hMSL, uint8_t *fixType, uint8_t *numSV) {
+
+    printf("Starting...\n");
+
+    vTaskDelay(10/portTICK_PERIOD_MS);
+
+    for(int i = 0; i < 10; i++) {
     
+    disableI2Ctimeout();
+
+    vTaskDelay(10/portTICK_PERIOD_MS);
+
+    printf("Disabled I2C!\n");
+
+    readNextGPSPacket();
+
+    }
+
+    // return nothing lol
+    *UTCtstamp = 0;
+    *lon = 0;
+    *lat = 0;
+    *gps_altitude = 0;
+    *hMSL = 0;
+    *fixType = 0;
+    *numSV = 0;
 }

@@ -136,7 +136,7 @@ esp_err_t i2c_manager_read_yeet(i2c_port_t port, uint8_t device_addr, uint8_t *d
     
     // Write the register address we want to read from
     i2c_master_start(cmd);
-    i2c_master_write_byte(cmd, (device_addr << 1) | I2C_MASTER_WRITE, true);
+    i2c_master_write_byte(cmd, (device_addr << 1) | I2C_MASTER_READ, true);
     
     if (len > 1) {
         i2c_master_read(cmd, data, len - 1, I2C_MASTER_ACK);
@@ -144,7 +144,7 @@ esp_err_t i2c_manager_read_yeet(i2c_port_t port, uint8_t device_addr, uint8_t *d
     i2c_master_read_byte(cmd, data + len - 1, I2C_MASTER_NACK);
     i2c_master_stop(cmd);
     
-    esp_err_t ret = i2c_master_cmd_begin(port, cmd, 1000 / portTICK_PERIOD_MS);
+    esp_err_t ret = i2c_master_cmd_begin(port, cmd, 2000 / portTICK_PERIOD_MS);
     i2c_cmd_link_delete(cmd);
     
     return ret;
