@@ -16,7 +16,7 @@
 #include "i2c_manager.h"
 #include "driver_SAM_M10Q.h"
 
-#define GPS_PRINTS
+// #define GPS_PRINTS
 
 void GPS_init(void) {
     ubxResetGPS();
