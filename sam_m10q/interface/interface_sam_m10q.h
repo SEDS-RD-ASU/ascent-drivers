@@ -5,4 +5,6 @@
 
 void GPS_ReqNavPVT(uint32_t *UTCtstamp, int32_t *lon, int32_t *lat, int32_t *gps_altitude, int32_t *hMSL, uint8_t *fixType, uint8_t *numSV);
 
+void GPS_Init(void);
+
 #endif /* INTERFACE_SAM_M10Q_H */

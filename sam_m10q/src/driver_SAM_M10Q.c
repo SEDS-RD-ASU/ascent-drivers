@@ -16,7 +16,11 @@
 #include "ascent_r2_hardware_definition.h"
 #include "i2c_manager.h"
 
+#include <math.h>
+
 #define GPS_MAX_PACKET_SIZE 1024
+
+#define GPS_DEBUG
 
 static uint8_t gps_packet_buf[GPS_MAX_PACKET_SIZE];
 
@@ -48,7 +52,9 @@ static esp_err_t read_gps_stream(uint8_t *data, uint16_t buf_length, uint16_t *r
         return ESP_FAIL;
     }
     if(*real_length > buf_length) {
+        #ifdef GPS_DEBUG
         printf("ya fucked up. buf: %d, real: %d.\n", buf_length, *real_length);
+        #endif
         return ESP_FAIL;
     }
     ubx_read_data(data,*real_length);
@@ -69,22 +75,21 @@ esp_err_t readGPSBytes(uint8_t *buf, uint16_t num_bytes) {
 }
 
 
-esp_err_t readNextGPSPacket(void) {
+esp_err_t readNextGPSPacket(sam_m10q_msginfo_t *msginfo, uint8_t *buf, uint16_t *buf_length) {
     uint16_t packet_length = 0;
 
-    esp_err_t ret = ESP_FAIL;
-    for (int i = 0; i < 3; i++) {
-        ret = read_gps_stream(gps_packet_buf, GPS_MAX_PACKET_SIZE, &packet_length);
-        if (ret == ESP_OK) {
-            break;
-        }
-    }
-
+    esp_err_t ret = read_gps_stream(gps_packet_buf, GPS_MAX_PACKET_SIZE, &packet_length);
     if(ret == ESP_FAIL) return ESP_FAIL;
 
-    sam_m10q_msginfo_t msginfo = sam_m10q_get_msginfo(gps_packet_buf, packet_length);
+    if (gps_packet_buf[0] != 0xB5 && gps_packet_buf[1] != 0x62) {
+        printf("Invalid UBX packet\n");
+        return ESP_FAIL;
+    } // check for validity
 
-    printf("msginfo: class: 0x%02X, id: 0x%02X, length: %u\n", msginfo.class, msginfo.id, msginfo.length);
+    *msginfo = gpsIdentifyMessage(gps_packet_buf, packet_length);
+
+    #ifdef GPS_DEBUG
+    printf("msginfo: class: 0x%02X, id: 0x%02X, length: %u\n", msginfo->class, msginfo->id, msginfo->length);
 
     printf("packet length: %d\n", packet_length);
 
@@ -92,7 +97,8 @@ esp_err_t readNextGPSPacket(void) {
         printf("0x%02X ", gps_packet_buf[i]);
     }
 
-    printf("\n");
+    printf("\n\n");
+    #endif
 
     return ESP_OK;
 }
@@ -113,8 +119,15 @@ esp_err_t setGPS10hz(void)
     return sendGPSBytes(set_10hz_msg, sizeof(set_10hz_msg));
 }
 
+esp_err_t reqNAVPVT(void) {
+    uint8_t req_navpvt_msg[] = {
+        0xB5, 0x62, 0x01, 0x07, 0x00, 0x00, 0x08, 0x19
+    };
+    return sendGPSBytes(req_navpvt_msg, sizeof(req_navpvt_msg));
+}
 
-sam_m10q_msginfo_t sam_m10q_get_msginfo(uint8_t *buf, uint16_t bufsize) {
+
+sam_m10q_msginfo_t gpsIdentifyMessage(uint8_t *buf, uint16_t bufsize) {
     sam_m10q_msginfo_t msginfo;
     msginfo.class = buf[2];
     msginfo.id = buf[3];
@@ -130,4 +143,24 @@ sam_m10q_msginfo_t sam_m10q_get_msginfo(uint8_t *buf, uint16_t bufsize) {
     ck_b = buf[bufsize - 1];
 
     return msginfo;
+}
+
+static double ddm_to_dd(double ddm) {
+    double degrees = floor(ddm / 100.0);
+    double minutes = ddm - degrees * 100.0;
+    double decimal_degrees = degrees + minutes / 60.0;
+    return decimal_degrees;
+}
+
+sam_m10q_navpvt_t gpsParseNavPVT(uint8_t *gps_packet_buf) {
+    // pov: parsing hell
+
+    // skip UBX frame header and extract payload
+    uint8_t *payload = gps_packet_buf + 6;
+
+    sam_m10q_navpvt_t navpvt;
+
+    // TODO
+    
+    return navpvt;
 }
