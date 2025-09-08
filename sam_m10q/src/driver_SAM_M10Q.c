@@ -16,54 +16,44 @@
 #include "ascent_r2_hardware_definition.h"
 #include "i2c_manager.h"
 
-#define GPS_MAX_PACKET_SIZE 256
+#define GPS_MAX_PACKET_SIZE 1024
 
 static uint8_t gps_packet_buf[GPS_MAX_PACKET_SIZE];
 
 
 // ----------- GPS SPECIFIC I2C ------------------ //
 
-static esp_err_t read_gps_stream(i2c_port_t port, uint8_t device_addr, uint8_t *data, uint16_t buf_length, uint16_t *real_length) {
-    uint8_t length_buf[2];
-    uint16_t length;
+static esp_err_t ubx_read_len(uint16_t *len) {
+    uint8_t buf[2];
+    uint8_t reg = 0xFD;
 
-    // start of cmd1
-    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-    
-    // tell it i want 0xfd
-    i2c_master_start(cmd);
-    i2c_master_write_byte(cmd, (device_addr << 1) | I2C_MASTER_WRITE, true);
-    i2c_master_write_byte(cmd, 0xFD, true);
+    // Write register address
+    esp_err_t err = i2c_master_write_read_device(
+        I2C_MASTER_PORT, SAM_M10Q_I2C_ADDR, &reg, 1, buf, 2, pdMS_TO_TICKS(100));
+    if (err != ESP_OK) return err;
 
-    // start reading data
-    i2c_master_start(cmd);
-    i2c_master_write_byte(cmd, (device_addr << 1) | I2C_MASTER_READ, true); 
-
-    // i2c_master_read(cmd, length_buf, 2, false);
-    i2c_master_read(cmd,&length_buf[0],1,true);
-    i2c_master_read(cmd,&length_buf[1],1,true);;
-
-    i2c_master_stop(cmd);
-
-    esp_err_t ret = i2c_master_cmd_begin(port, cmd, 1000 / portTICK_PERIOD_MS);
-    i2c_cmd_link_delete(cmd);
-
-    // end of cmd1
-    length = (length_buf[0] << 8) | (length_buf[1]);
-    length --;
-    printf("length_buf: 0x%02X, 0x%02X\n", length_buf[0], length_buf[1]);
-    *real_length = length;
-
-    if(length > buf_length) {
-        return ESP_FAIL;
-    }
-    
-    ret = i2c_manager_read_yeet(port, device_addr, data, length);
-    
-    return ret;
+    *len = ((uint16_t)buf[0] << 8) | buf[1];
+    return ESP_OK;
 }
 
+static esp_err_t ubx_read_data(uint8_t *data, size_t len) {
+    uint8_t reg = 0xFF;
+    return i2c_master_write_read_device(
+        I2C_MASTER_PORT, SAM_M10Q_I2C_ADDR, &reg, 1, data, len, pdMS_TO_TICKS(100));
+}
 
+static esp_err_t read_gps_stream(uint8_t *data, uint16_t buf_length, uint16_t *real_length) {
+    ubx_read_len(real_length);
+    if(*real_length == 0) {
+        return ESP_FAIL;
+    }
+    if(*real_length > buf_length) {
+        printf("ya fucked up. buf: %d, real: %d.\n", buf_length, *real_length);
+        return ESP_FAIL;
+    }
+    ubx_read_data(data,*real_length);
+    return ESP_OK;
+}
 
 // ------ actual driver follows ----  //
 
@@ -82,10 +72,15 @@ esp_err_t readGPSBytes(uint8_t *buf, uint16_t num_bytes) {
 esp_err_t readNextGPSPacket(void) {
     uint16_t packet_length = 0;
 
-    esp_err_t ret = read_gps_stream(I2C_MASTER_PORT, SAM_M10Q_I2C_ADDR, gps_packet_buf, GPS_MAX_PACKET_SIZE, &packet_length);
-    if (ret != ESP_OK){
-        return ret;
+    esp_err_t ret = ESP_FAIL;
+    for (int i = 0; i < 3; i++) {
+        ret = read_gps_stream(gps_packet_buf, GPS_MAX_PACKET_SIZE, &packet_length);
+        if (ret == ESP_OK) {
+            break;
+        }
     }
+
+    if(ret == ESP_FAIL) return ESP_FAIL;
 
     sam_m10q_msginfo_t msginfo = sam_m10q_get_msginfo(gps_packet_buf, packet_length);
 
@@ -102,22 +97,20 @@ esp_err_t readNextGPSPacket(void) {
     return ESP_OK;
 }
 
-
-esp_err_t requestUARTBaudrate(void) {
-    uint8_t payload[] = {0xB5, 0x62, 0x06, 0x8B, 0x08, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x00, 0x52, 0x40, 0x2D, 0x80};
-    return sendGPSBytes(payload, sizeof(payload));
+esp_err_t disableNMEAMessages(void) {
+    uint8_t disable_nmea_msg[] = {
+        0xB5, 0x62, 0x06, 0x8A, 0x09, 0x00, 0x00, 0x01, 0x00, 0x00,
+        0x02, 0x00, 0x72, 0x10, 0x00, 0x1E, 0xB1
+    };
+    return sendGPSBytes(disable_nmea_msg, sizeof(disable_nmea_msg));
 }
 
-
-esp_err_t disableNMEAoutprot(void) {
-    uint8_t payload[] = {0xb5, 0x62, 0x06, 0x8a, 0x09, 0x00, 0x00, 0x01, 0x00, 0x00, 0x02, 0x00, 0x72, 0x10, 0x00, 0x1e, 0xb1};
-    return sendGPSBytes(payload, sizeof(payload));
-}
-
-
-esp_err_t disableI2Ctimeout(void) {
-    uint8_t payload[] = {0xb5, 0x62, 0x06, 0x8a, 0x09, 0x00, 0x00, 0x01, 0x00, 0x00, 0x02, 0x00, 0x51, 0x10, 0x01, 0xfe, 0x4f};
-    return sendGPSBytes(payload, sizeof(payload));
+esp_err_t setGPS10hz(void)
+{
+    uint8_t set_10hz_msg[] = {
+        0xB5, 0x62, 0x06, 0x08, 0x06, 0x00, 0x19, 0x00, 0x01, 0x00, 0x01, 0x00, 0x2F, 0x50
+    };
+    return sendGPSBytes(set_10hz_msg, sizeof(set_10hz_msg));
 }
 
 
@@ -125,7 +118,7 @@ sam_m10q_msginfo_t sam_m10q_get_msginfo(uint8_t *buf, uint16_t bufsize) {
     sam_m10q_msginfo_t msginfo;
     msginfo.class = buf[2];
     msginfo.id = buf[3];
-    msginfo.length = (buf[4] << 8) | (buf[5]);
+    msginfo.length = (buf[5] << 8) | (buf[4]);
     msginfo.valid_checksum = false;
 
     // Validate checksum

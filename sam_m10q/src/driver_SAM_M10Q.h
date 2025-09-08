@@ -30,18 +30,24 @@ esp_err_t readNextGPSPacket(void);
 esp_err_t requestUARTBaudrate(void);
 
 /**
- * @brief Disable NMEA output on I2C
- */
-esp_err_t disableNMEAoutprot(void);
-
-/**
  * @brief Disable I2C timeout on I2C
  */
 esp_err_t disableI2Ctimeout(void);
 
 /**
+ * @brief Disable NMEA output
+ */
+esp_err_t disableNMEAMessages(void);
+
+/**
  * @brief Get the message information for a given buffer
  */
 sam_m10q_msginfo_t sam_m10q_get_msginfo(uint8_t *buf, uint16_t bufsize);
+
+/**
+ * @brief Set the GPS to 10Hz
+ */
+esp_err_t setGPS10hz(void);
+
 
 #endif /* DRIVER_SAM_M10Q_H */

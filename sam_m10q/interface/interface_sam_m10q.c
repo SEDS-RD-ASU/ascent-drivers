@@ -23,17 +23,13 @@ void GPS_ReqNavPVT(uint32_t *UTCtstamp, int32_t *lon, int32_t *lat, int32_t *gps
 
     vTaskDelay(10/portTICK_PERIOD_MS);
 
-    for(int i = 0; i < 10; i++) {
-    
-    disableI2Ctimeout();
-
-    vTaskDelay(10/portTICK_PERIOD_MS);
-
-    printf("Disabled I2C!\n");
+    disableNMEAMessages();
 
     readNextGPSPacket();
 
-    }
+    setGPS10hz();
+
+    readNextGPSPacket();
 
     // return nothing lol
     *UTCtstamp = 0;
