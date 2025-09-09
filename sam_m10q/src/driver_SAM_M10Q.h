@@ -1,24 +1,15 @@
 #ifndef DRIVER_SAM_M10Q_H
 #define DRIVER_SAM_M10Q_H
 
+#define GPS_MAX_PACKET_SIZE 200
+
+
 typedef struct {
     uint8_t class;
     uint8_t id;
     uint16_t length;
     bool valid_checksum;
 } sam_m10q_msginfo_t;
-
-
-// black magic to help parse navpvt
-
-#define U2(o) ((uint16_t)payload[o] | ((uint16_t)payload[o+1] << 8))
-#define U4(o) ((uint32_t)payload[o] | ((uint32_t)payload[o+1] << 8) | ((uint32_t)payload[o+2] << 16) | ((uint32_t)payload[o+3] << 24))
-#define I4(o) ((int32_t)( (uint32_t)payload[o]        | \
-                              ((uint32_t)payload[o+1] << 8)  | \
-                              ((uint32_t)payload[o+2] << 16) | \
-                              ((uint32_t)payload[o+3] << 24)))
-
-
 
 
 typedef struct {
@@ -36,8 +27,8 @@ typedef struct {
     uint8_t  flags;         // Fix status flags
     uint8_t  flags2;        // Additional flags
     uint8_t  numSV;         // Number of satellites used in Nav Solution
-    double  lon;            // Longitude
-    double  lat;            // Latitude
+    int32_t  lon;            // Longitude
+    int32_t  lat;            // Latitude
     int32_t  height;        // Height above ellipsoid (mm)
     int32_t  hMSL;          // Height above mean sea level (mm)
     uint32_t hAcc;          // Horizontal accuracy estimate (mm)
@@ -50,8 +41,7 @@ typedef struct {
     uint32_t sAcc;          // Speed accuracy estimate (mm/s)
     uint32_t headAcc;       // Heading accuracy estimate (1e-5 deg)
     uint16_t pDOP;          // Position DOP (0.01)
-    uint16_t reserved1;     // Alignment padding (2 bytes, from UBX spec)
-    uint32_t flags3;        // Additional flags
+    uint16_t flags3;        // Additional flags
 } sam_m10q_navpvt_t;
 
 
@@ -103,6 +93,6 @@ esp_err_t reqNAVPVT(void);
 /**
  * @brief Parse the NAV-PVT message
  */
-sam_m10q_navpvt_t gpsParseNavPVT(uint8_t *gps_packet_buf);
+sam_m10q_navpvt_t gpsParseNavPVT();
 
 #endif /* DRIVER_SAM_M10Q_H */

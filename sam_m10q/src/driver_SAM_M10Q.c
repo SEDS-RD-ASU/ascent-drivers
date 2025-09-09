@@ -18,9 +18,7 @@
 
 #include <math.h>
 
-#define GPS_MAX_PACKET_SIZE 1024
-
-#define GPS_DEBUG
+// #define GPS_DEBUG
 
 static uint8_t gps_packet_buf[GPS_MAX_PACKET_SIZE];
 
@@ -87,6 +85,7 @@ esp_err_t readNextGPSPacket(sam_m10q_msginfo_t *msginfo, uint8_t *buf, uint16_t 
     } // check for validity
 
     *msginfo = gpsIdentifyMessage(gps_packet_buf, packet_length);
+    *buf_length = packet_length;
 
     #ifdef GPS_DEBUG
     printf("msginfo: class: 0x%02X, id: 0x%02X, length: %u\n", msginfo->class, msginfo->id, msginfo->length);
@@ -145,22 +144,50 @@ sam_m10q_msginfo_t gpsIdentifyMessage(uint8_t *buf, uint16_t bufsize) {
     return msginfo;
 }
 
-static double ddm_to_dd(double ddm) {
-    double degrees = floor(ddm / 100.0);
-    double minutes = ddm - degrees * 100.0;
-    double decimal_degrees = degrees + minutes / 60.0;
-    return decimal_degrees;
-}
-
-sam_m10q_navpvt_t gpsParseNavPVT(uint8_t *gps_packet_buf) {
+sam_m10q_navpvt_t gpsParseNavPVT() {
     // pov: parsing hell
 
-    // skip UBX frame header and extract payload
-    uint8_t *payload = gps_packet_buf + 6;
-
-    sam_m10q_navpvt_t navpvt;
-
-    // TODO
+    uint8_t payload[92] = {0};
     
+    for (int i = 0; i < 92; i++) {
+        payload[i] = gps_packet_buf[6 + i];
+    } // this is slow. i know it is slow. - abdul
+
+    sam_m10q_navpvt_t navpvt = {0};
+
+    navpvt.iTOW = payload[0] | (payload[1] << 8) | (payload[2] << 16) | (payload[3] << 24); // ubx forums say no to use this....?
+    navpvt.year = payload[4] | (payload[5] << 8);
+    navpvt.month = payload[6];
+    navpvt.day = payload[7];
+    navpvt.hour = payload[8];
+    navpvt.min = payload[9];
+    navpvt.sec = payload[10];
+    navpvt.valid = payload[11];
+    navpvt.tAcc = payload[12] | (payload[13] << 8) | (payload[14] << 16) | (payload[15] << 24);
+    navpvt.nano = payload[16] | (payload[17] << 8) | (payload[18] << 16) | (payload[19] << 24);
+
+    navpvt.fixType = payload[20];
+    navpvt.flags = payload[21];
+    navpvt.flags2 = payload[22];
+    navpvt.numSV = payload[23];
+    navpvt.lon = payload[24] | (payload[25] << 8) | (payload[26] << 16) | (payload[27] << 24);
+    navpvt.lat = payload[28] | (payload[29] << 8) | (payload[30] << 16) | (payload[31] << 24);
+    navpvt.height = payload[32] | (payload[33] << 8) | (payload[34] << 16) | (payload[35] << 24);
+    navpvt.hMSL = payload[36] | (payload[37] << 8) | (payload[38] << 16) | (payload[39] << 24);
+    navpvt.hAcc = payload[40] | (payload[41] << 8) | (payload[42] << 16) | (payload[43] << 24);
+    navpvt.vAcc = payload[44] | (payload[45] << 8) | (payload[46] << 16) | (payload[47] << 24);
+    
+    navpvt.velN = payload[48] | (payload[49] << 8) | (payload[50] << 16) | (payload[51] << 24);
+    navpvt.velE = payload[52] | (payload[53] << 8) | (payload[54] << 16) | (payload[55] << 24);
+    navpvt.velD = payload[56] | (payload[57] << 8) | (payload[58] << 16) | (payload[59] << 24);
+    navpvt.gSpeed = payload[60] | (payload[61] << 8) | (payload[62] << 16) | (payload[63] << 24);
+    navpvt.headMot = payload[64] | (payload[65] << 8) | (payload[66] << 16) | (payload[67] << 24);
+    navpvt.sAcc = payload[68] | (payload[69] << 8) | (payload[70] << 16) | (payload[71] << 24);
+    navpvt.headAcc = payload[72] | (payload[73] << 8) | (payload[74] << 16) | (payload[75] << 24);
+
+    navpvt.pDOP = payload[76] | (payload[77] << 8);
+    
+    navpvt.flags3 = payload[78];
+
     return navpvt;
 }

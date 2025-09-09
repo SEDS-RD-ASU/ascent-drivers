@@ -46,10 +46,10 @@ void GPS_Init(void) {
 }
 
 
-void GPS_ReqNavPVT(uint32_t *UTCtstamp, double *lon, double *lat, int32_t *gps_altitude, int32_t *hMSL, uint8_t *fixType, uint8_t *numSV) {
+void GPS_ReqNavPVT(uint32_t *UTCtstamp, double *lon, double *lat, int32_t *hMSL, uint8_t *fixType, uint8_t *numSV) {
     esp_err_t ret;
     sam_m10q_msginfo_t msginfo;
-    uint8_t gps_packet_buf[100];
+    uint8_t gps_packet_buf[GPS_MAX_PACKET_SIZE];
     uint16_t gps_packet_length;
 
     int attempts = 0;
@@ -64,15 +64,12 @@ void GPS_ReqNavPVT(uint32_t *UTCtstamp, double *lon, double *lat, int32_t *gps_a
         }
     } while (ret != ESP_OK && attempts < 15 && msginfo.id != 0x07);
     
-    sam_m10q_navpvt_t navpvt = gpsParseNavPVT(gps_packet_buf);
-    
+    sam_m10q_navpvt_t navpvt = gpsParseNavPVT();
+
     *UTCtstamp = navpvt.iTOW;
     *lon = navpvt.lon;
     *lat = navpvt.lat;
-    *gps_altitude = navpvt.height;
     *hMSL = navpvt.hMSL;
     *fixType = navpvt.fixType;
     *numSV = navpvt.numSV;
-
-    printf("UTC Timestamp: %" PRIu32 ", Longitude: %f, Latitude: %f, GPS Altitude: %" PRId32 ", HMSL: %" PRId32 ", Fix Type: %d, Number of Satellites: %d\n", *UTCtstamp, *lon, *lat, *gps_altitude, *hMSL, *fixType, *numSV);
 }
