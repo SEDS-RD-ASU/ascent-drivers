@@ -46,7 +46,7 @@ void GPS_init(void) {
 }
 
 
-void GPS_ReqNavPVT(uint32_t *UTCtstamp, int32_t *lon, int32_t *lat, int32_t *height, int32_t *hMSL, uint8_t *fixType, uint8_t *numSV) {
+void GPS_read(uint32_t *UTCtstamp, int32_t *lon, int32_t *lat, int32_t *height, int32_t *hMSL, uint8_t *fixType, uint8_t *numSV) {
     esp_err_t ret;
     sam_m10q_msginfo_t msginfo;
     uint8_t gps_packet_buf[GPS_MAX_PACKET_SIZE];
