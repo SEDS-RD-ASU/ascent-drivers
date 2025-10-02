@@ -20,8 +20,8 @@
 void GPS_init(void) {
     esp_err_t ret;
     sam_m10q_msginfo_t msginfo;
-    uint8_t gps_packet_buf[100];
-    uint16_t gps_packet_length;
+    uint8_t gps_packet_buf[100]; // max buffer size needed for initialization. ubx messages can of course be larger than 100 bytes.
+    uint16_t gps_packet_length; 
 
     disableNMEAMessages();
     int attempts = 0;
@@ -31,7 +31,11 @@ void GPS_init(void) {
             vTaskDelay(10/portTICK_PERIOD_MS);
             attempts++;
         }
-    } while (ret != ESP_OK && attempts < 15 && msginfo.id != 0x01);
+    } while (
+        ret != ESP_OK && 
+        attempts < 15 && 
+        msginfo.id != 0x01
+    );
 
     setGPS10hz();
 
@@ -42,7 +46,11 @@ void GPS_init(void) {
             vTaskDelay(10/portTICK_PERIOD_MS);
             attempts++;
         }
-    } while (ret != ESP_OK && attempts < 15 && msginfo.id != 0x01);
+    } while (
+        ret != ESP_OK &&
+        attempts < 15 &&
+        msginfo.id != 0x01
+    );
 }
 
 
@@ -53,19 +61,35 @@ void GPS_read(uint32_t *UTCtstamp, int32_t *lon, int32_t *lat, int32_t *height, 
     uint16_t gps_packet_length;
 
     int attempts = 0;
-    reqNAVPVT();
 
-    attempts = 0;
+    ret = reqNAVPVT(); // request NAV-PVT from the GPS
+    if (ret != ESP_OK) {
+        *UTCtstamp = 0;
+        *lon = 0;
+        *lat = 0;
+        *hMSL = 0;
+        *height = 0;
+        *fixType = 0;
+        *numSV = 0;
+        prinf("!!!!! WRITING TO GPS FAILED !!!!!!\n"); // todo: send the board into a fail state
+    };
+
     do {
-        ret = readNextGPSPacket(&msginfo, gps_packet_buf, &gps_packet_length);
+        ret = readNextGPSPacket(&msginfo, gps_packet_buf, &gps_packet_length); // read the response (i.e. next packet from the GPS)
         if (ret != ESP_OK) {
-            vTaskDelay(10/portTICK_PERIOD_MS);
+            vTaskDelay(10/portTICK_PERIOD_MS);  // arbritary retry delay
             attempts++;
         }
-    } while (ret != ESP_OK && attempts < 15 && msginfo.id != 0x07);
+    } while (
+        ret != ESP_OK &&
+        attempts < 15 &&    // arbritary number
+        msginfo.id != 0x07  // nav-pvt message ID
+    );
     
-    sam_m10q_navpvt_t navpvt = gpsParseNavPVT();
+    sam_m10q_navpvt_t navpvt = gpsParseNavPVT(); // now that we have a nav-pvt message, parse useful info from it
 
+    // yeet the information at pointers
+    // this is what the flight state logic and telemetry will use
     *UTCtstamp = navpvt.iTOW;
     *lon = navpvt.lon;
     *lat = navpvt.lat;

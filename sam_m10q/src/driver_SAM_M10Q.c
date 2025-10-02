@@ -45,17 +45,17 @@ static esp_err_t ubx_read_data(uint8_t *data, size_t len) {
 }
 
 static esp_err_t read_gps_stream(uint8_t *data, uint16_t buf_length, uint16_t *real_length) {
-    ubx_read_len(real_length);
-    if(*real_length == 0) {
+    ubx_read_len(real_length); // read length of next UBX packet from 0xFD and 0xFE registers (see pg 23 of integration manual)
+    if(*real_length == 0) { // if the length is zero there is nothing / something has gone horribly wrong
         return ESP_FAIL;
     }
-    if(*real_length > buf_length) {
+    if(*real_length > buf_length) { // not enough buffer to read message
         #ifdef GPS_DEBUG
         printf("ya fucked up. buf: %d, real: %d.\n", buf_length, *real_length);
         #endif
         return ESP_FAIL;
     }
-    ubx_read_data(data,*real_length);
+    ubx_read_data(data,*real_length); // read the packet by repeatedly reading from 0xFF
     return ESP_OK;
 }
 
@@ -74,6 +74,8 @@ esp_err_t readGPSBytes(uint8_t *buf, uint16_t num_bytes) {
 
 
 esp_err_t readNextGPSPacket(sam_m10q_msginfo_t *msginfo, uint8_t *buf, uint16_t *buf_length) {
+    // the goal of this function is to read the GPS stream successfully and return the UBX message for further processing
+
     uint16_t packet_length = 0;
 
     esp_err_t ret = read_gps_stream(gps_packet_buf, GPS_MAX_PACKET_SIZE, &packet_length);
@@ -82,9 +84,9 @@ esp_err_t readNextGPSPacket(sam_m10q_msginfo_t *msginfo, uint8_t *buf, uint16_t 
     if (gps_packet_buf[0] != 0xB5 && gps_packet_buf[1] != 0x62) {
         printf("Invalid UBX packet\n");
         return ESP_FAIL;
-    } // check for validity
+    } // check for validity (sync characters must be 0xb5 and 0x62)
 
-    *msginfo = gpsIdentifyMessage(gps_packet_buf, packet_length);
+    *msginfo = gpsIdentifyMessage(gps_packet_buf, packet_length); // use the header to identify the message type
     *buf_length = packet_length;
 
     #ifdef GPS_DEBUG
@@ -133,7 +135,7 @@ sam_m10q_msginfo_t gpsIdentifyMessage(uint8_t *buf, uint16_t bufsize) {
     msginfo.length = (buf[5] << 8) | (buf[4]);
     msginfo.valid_checksum = false;
 
-    // Validate checksum
+    // todo: Validate checksum
 
     uint8_t ck_a;
     uint8_t ck_b;
@@ -188,6 +190,8 @@ sam_m10q_navpvt_t gpsParseNavPVT() {
     navpvt.pDOP = payload[76] | (payload[77] << 8);
     
     navpvt.flags3 = payload[78];
+
+    // thank you for coming to my ted talk
 
     return navpvt;
 }
