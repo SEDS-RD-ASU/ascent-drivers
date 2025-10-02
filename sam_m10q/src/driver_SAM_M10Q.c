@@ -127,6 +127,12 @@ esp_err_t reqNAVPVT(void) {
     return sendGPSBytes(req_navpvt_msg, sizeof(req_navpvt_msg));
 }
 
+esp_err_t setAirborneDynamicModel(void) { // Airborne with <4g acceleration
+    uint8_t set_airborne_dynamic_model_msg[] = {
+        0XB5, 0X62, 0X6, 0X8A, 0X9, 0X0, 0X0, 0X1, 0X0, 0X0, 0X21, 0X0, 0X11, 0X20, 0X8, 0XF4, 0X51
+    };
+    return sendGPSBytes(set_airborne_dynamic_model_msg, sizeof(set_airborne_dynamic_model_msg));
+}
 
 sam_m10q_msginfo_t gpsIdentifyMessage(uint8_t *buf, uint16_t bufsize) {
     sam_m10q_msginfo_t msginfo;
