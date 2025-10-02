@@ -16,6 +16,7 @@
 #include "i2c_manager.h"
 #include "driver_SAM_M10Q.h"
 
+#define GPS_RETRY_DELAY 50
 
 void GPS_init(void) {
     esp_err_t ret;
@@ -28,12 +29,19 @@ void GPS_init(void) {
     do {
         ret = readNextGPSPacket(&msginfo, gps_packet_buf, &gps_packet_length);
         if (ret != ESP_OK) {
-            vTaskDelay(10/portTICK_PERIOD_MS);
+            vTaskDelay(GPS_RETRY_DELAY/portTICK_PERIOD_MS);
             attempts++;
+        }
+        if (msginfo.id != 0x01) {
+            printf("Failed to disable NMEA messages, Retry # %d\n", attempts);
+            for (int i = 0; i < gps_packet_length; i++) {
+                printf("0x%02X ", gps_packet_buf[i]);
+            }
+            printf("\n");
         }
     } while (
         ret != ESP_OK && 
-        attempts < 15 && 
+        attempts < 100 && 
         msginfo.id != 0x01 // UBX-ACK-ACK
     );
 
@@ -42,8 +50,15 @@ void GPS_init(void) {
     do {
         ret = readNextGPSPacket(&msginfo, gps_packet_buf, &gps_packet_length);
         if (ret != ESP_OK) {
-            vTaskDelay(10/portTICK_PERIOD_MS);
+            vTaskDelay(GPS_RETRY_DELAY/portTICK_PERIOD_MS);
             attempts++;
+        }
+        if (msginfo.id != 0x01) {
+            printf("Failed to set GPS to 10hz, Retry # %d\n", attempts);
+            for (int i = 0; i < gps_packet_length; i++) {
+                printf("0x%02X ", gps_packet_buf[i]);
+            }
+            printf("\n");
         }
     } while (
         ret != ESP_OK &&
@@ -56,8 +71,36 @@ void GPS_init(void) {
     do {
         ret = readNextGPSPacket(&msginfo, gps_packet_buf, &gps_packet_length);
         if (ret != ESP_OK) {
-            vTaskDelay(10/portTICK_PERIOD_MS);
+            vTaskDelay(GPS_RETRY_DELAY/portTICK_PERIOD_MS);
             attempts++;
+        }
+        if (msginfo.id != 0x01) {
+            printf("Failed to set GPS to Airborne Dynamic Model, Retry # %d\n", attempts);
+            for (int i = 0; i < gps_packet_length; i++) {
+                printf("0x%02X ", gps_packet_buf[i]);
+            }
+            printf("\n");
+        }
+    } while (
+        ret != ESP_OK &&
+        attempts < 15 &&
+        msginfo.id != 0x01 // UBX-ACK-ACK
+    );
+
+    enableAllConstellations();
+    attempts = 0;
+    do {
+        ret = readNextGPSPacket(&msginfo, gps_packet_buf, &gps_packet_length);
+        if (ret != ESP_OK) {
+            vTaskDelay(GPS_RETRY_DELAY/portTICK_PERIOD_MS);
+            attempts++;
+        }
+        if (msginfo.id != 0x01) {
+            printf("Failed to enable all constellations, Retry # %d\n", attempts);
+            for (int i = 0; i < gps_packet_length; i++) {
+                printf("0x%02X ", gps_packet_buf[i]);
+            }
+            printf("\n");
         }
     } while (
         ret != ESP_OK &&
@@ -91,7 +134,7 @@ void GPS_read(uint32_t *UTCtstamp, int32_t *lon, int32_t *lat, int32_t *height, 
     do {
         ret = readNextGPSPacket(&msginfo, gps_packet_buf, &gps_packet_length); // read the response (i.e. next packet from the GPS)
         if (ret != ESP_OK) {
-            vTaskDelay(10/portTICK_PERIOD_MS);  // arbritary retry delay
+            vTaskDelay(GPS_RETRY_DELAY/portTICK_PERIOD_MS);  // arbritary retry delay
             attempts++;
         }
     } while (
