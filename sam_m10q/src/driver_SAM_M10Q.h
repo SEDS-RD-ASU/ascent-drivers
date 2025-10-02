@@ -91,6 +91,11 @@ esp_err_t setGPS10hz(void);
 esp_err_t setAirborneDynamicModel(void);
 
 /**
+ * @brief Enable all GPS constellations
+ */
+esp_err_t enableAllConstellations(void);
+
+/**
  * @brief Request the NAV-PVT message
  */
 esp_err_t reqNAVPVT(void);

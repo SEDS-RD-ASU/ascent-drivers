@@ -134,6 +134,13 @@ esp_err_t setAirborneDynamicModel(void) { // Airborne with <4g acceleration
     return sendGPSBytes(set_airborne_dynamic_model_msg, sizeof(set_airborne_dynamic_model_msg));
 }
 
+esp_err_t enableAllConstellations(void) {
+    uint8_t enable_all_constellations_msg[] = {
+        0XB5, 0X62, 0X6, 0X8A, 0X4A, 0X0, 0X0, 0X1, 0X0, 0X0, 0X1F, 0X0, 0X31, 0X10, 0X1, 0X1, 0X0, 0X31, 0X10, 0X1, 0X20, 0X0, 0X31, 0X10, 0X1, 0X5, 0X0, 0X31, 0X10, 0X1, 0X21, 0X0, 0X31, 0X10, 0X1, 0X7, 0X0, 0X31, 0X10, 0X1, 0X22, 0X0, 0X31, 0X10, 0X1, 0XD, 0X0, 0X31, 0X10, 0X1, 0XF, 0X0, 0X31, 0X10, 0X1, 0X24, 0X0, 0X31, 0X10, 0X1, 0X12, 0X0, 0X31, 0X10, 0X1, 0X14, 0X0, 0X31, 0X10, 0X1, 0X25, 0X0, 0X31, 0X10, 0X1, 0X18, 0X0, 0X31, 0X10, 0X1, 0XA9, 0X93
+    };
+    return sendGPSBytes(enable_all_constellations_msg, sizeof(enable_all_constellations_msg));
+}
+
 sam_m10q_msginfo_t gpsIdentifyMessage(uint8_t *buf, uint16_t bufsize) {
     sam_m10q_msginfo_t msginfo;
     msginfo.class = buf[2];
