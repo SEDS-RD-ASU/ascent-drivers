@@ -86,6 +86,11 @@ sam_m10q_msginfo_t gpsIdentifyMessage(uint8_t *buf, uint16_t bufsize);
 esp_err_t setGPS10hz(void);
 
 /**
+ * @brief Set the GPS to Airborne Dynamic Model (<4g acceleration)
+ */
+esp_err_t setAirborneDynamicModel(void);
+
+/**
  * @brief Request the NAV-PVT message
  */
 esp_err_t reqNAVPVT(void);

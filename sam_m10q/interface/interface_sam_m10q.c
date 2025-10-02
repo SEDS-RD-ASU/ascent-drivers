@@ -34,11 +34,10 @@ void GPS_init(void) {
     } while (
         ret != ESP_OK && 
         attempts < 15 && 
-        msginfo.id != 0x01
+        msginfo.id != 0x01 // UBX-ACK-ACK
     );
 
     setGPS10hz();
-
     attempts = 0;
     do {
         ret = readNextGPSPacket(&msginfo, gps_packet_buf, &gps_packet_length);
@@ -49,8 +48,23 @@ void GPS_init(void) {
     } while (
         ret != ESP_OK &&
         attempts < 15 &&
-        msginfo.id != 0x01
+        msginfo.id != 0x01 // UBX-ACK-ACK
     );
+    
+    setAirborneDynamicModel();
+    attempts = 0;
+    do {
+        ret = readNextGPSPacket(&msginfo, gps_packet_buf, &gps_packet_length);
+        if (ret != ESP_OK) {
+            vTaskDelay(10/portTICK_PERIOD_MS);
+            attempts++;
+        }
+    } while (
+        ret != ESP_OK &&
+        attempts < 15 &&
+        msginfo.id != 0x01 // UBX-ACK-ACK
+    );
+    
 }
 
 
@@ -71,7 +85,7 @@ void GPS_read(uint32_t *UTCtstamp, int32_t *lon, int32_t *lat, int32_t *height, 
         *height = 0;
         *fixType = 0;
         *numSV = 0;
-        prinf("!!!!! WRITING TO GPS FAILED !!!!!!\n"); // todo: send the board into a fail state
+        printf("!!!!! WRITING TO GPS FAILED !!!!!!\n"); // todo: send the board into a fail state
     };
 
     do {
