@@ -2,7 +2,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_err.h"
-#include "driver_bmp390l.h"
+#include "driver_BMP390L.h"
 #include "ascent_r2_hardware_definition.h"
 #include "i2c_manager.h"
 
