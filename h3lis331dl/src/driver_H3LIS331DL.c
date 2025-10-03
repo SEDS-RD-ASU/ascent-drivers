@@ -4,7 +4,7 @@
 #include "driver/i2c.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "driver_h3lis331dl.h"
+#include "driver_H3LIS331DL.h"
 #include "i2c_manager.h"
 
 static const char *TAG = "H3LIS331DL";

@@ -2,7 +2,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_err.h"
-#include "driver_h3lis331dl.h"
+#include "driver_H3LIS331DL.h"
 #include "ascent_r2_hardware_definition.h"
 #include "i2c_manager.h"
 
